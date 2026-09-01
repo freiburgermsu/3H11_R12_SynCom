@@ -8,8 +8,16 @@ Version 1 ("parsed"):   members are parsed back out of the downloaded
 Version 2 ("isolates"): members are the repo's gap-filled isolate models
                         (data/model_acido_gf.json, data/model_rhoda_gf.json).
 
-Both are merged with modelseedpy MSCommunity.build_from_species_models
-(3H11 -> index 1 / c1, R12 -> index 2 / c2, shared e0) at 40/60 abundance.
+Both are merged through the standalone MSCommunity package
+(mscommunity.commhelper.build_from_species_models: 3H11 -> index 1 / c1,
+R12 -> index 2 / c2, shared e0) at 40/60 abundance.
+
+NOTE: the community models committed under data/ were originally produced by
+the legacy modelseedpy.community builder (since removed from ModelSEEDpy).
+Rebuilding through the package may differ cosmetically; this script therefore
+only overwrites a committed model when the rebuild is equivalent (same
+reactions, stoichiometry and bounds), and otherwise saves alongside it with a
+"_pkgbuild" suffix and prints the differences.
 
 Run:  ~/Documents/py_venv/bin/python mscommunity_compare.py
 """
@@ -21,35 +29,7 @@ warnings.filterwarnings('ignore')
 import cobra
 from cobra.core import Model, Metabolite, Reaction
 
-from modelseedpy.core.msmodelutl import MSModelUtil
-from modelseedpy.core.fbahelper import FBAHelper
-
-# modelseedpy.community.__init__ imports modules missing from this checkout
-# (commkineticpkg, mscompatibility, ...), so load mscommunity.py directly.
-import importlib.util
-import modelseedpy
-
-_msc_path = modelseedpy.__path__[0] + '/community/mscommunity.py'
-_spec = importlib.util.spec_from_file_location('mscommunity_standalone', _msc_path)
-_msc_mod = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_msc_mod)
-MSCommunity = _msc_mod.MSCommunity
-
-# FBAHelper.add_atp_hydrolysis no longer exists in modelseedpy 0.4.3 but
-# CommunityModelSpecies still calls it; delegate to the MSModelUtil method.
-if not hasattr(FBAHelper, 'add_atp_hydrolysis'):
-    FBAHelper.add_atp_hydrolysis = staticmethod(
-        lambda model, compartment: MSModelUtil.get(model).add_atp_hydrolysis(compartment))
-
-# mscommunity.build_from_species_models expects parse_id's compartment index
-# as a string (len(output[2])), but this checkout returns an int.
-_orig_parse_id = MSModelUtil.parse_id
-def _parse_id_compat(cobra_obj):
-    out = _orig_parse_id(cobra_obj)
-    if out is not None and len(out) == 3:
-        return (out[0], out[1], str(out[2]))
-    return out
-MSModelUtil.parse_id = staticmethod(_parse_id_compat)
+from mscommunity.commhelper import build_from_species_models
 
 DATA = './data'
 NAMES = ['3H11', 'R12']
@@ -148,10 +128,52 @@ def parse_member_from_comm(model_comm, token, member_id, gpr_source):
 
 
 def build_community(members, mdlid):
-    msc = MSCommunity.build_from_species_models(
-        members, mdlid=mdlid, name=mdlid, names=NAMES, abundances=dict(ABUNDANCES))
-    msc.model.id = mdlid
-    return msc
+    # commkinetics=False: the kinetic rows are installed by kinetic_sweep.py
+    # when sweeping; the saved model carries no solver constraints either way
+    model = build_from_species_models(members, model_id=mdlid, name=mdlid,
+                                      abundances=dict(ABUNDANCES),
+                                      commkinetics=False, printing=False)
+    model.id = mdlid
+    return model
+
+
+def _rxn_signature(model):
+    return {r.id: (round(r.lower_bound, 6), round(r.upper_bound, 6),
+                   tuple(sorted((m.id, round(v, 8)) for m, v in r.metabolites.items())))
+            for r in model.reactions}
+
+
+def save_model(model, path):
+    """Overwrite a committed model only when the rebuild is equivalent;
+    otherwise save alongside it with a _pkgbuild suffix and report."""
+    import os
+    # the builder notes member biomass compounds as live Metabolite objects,
+    # which JSON cannot serialize; keep their ids instead
+    mbc = model.notes.get('member_biomass_cpds')
+    if mbc:
+        model.notes['member_biomass_cpds'] = {
+            k: [getattr(m, 'id', str(m)) for m in v] if isinstance(v, (list, tuple, set))
+            else getattr(v, 'id', str(v))
+            for k, v in mbc.items()}
+    if not os.path.exists(path):
+        cobra.io.save_json_model(model, path)
+        print(f'saved {path}')
+        return
+    old = cobra.io.load_json_model(path)
+    sig_new, sig_old = _rxn_signature(model), _rxn_signature(old)
+    if sig_new == sig_old:
+        print(f'{path}: package rebuild is equivalent to the committed model')
+        return
+    only_new = sorted(set(sig_new) - set(sig_old))
+    only_old = sorted(set(sig_old) - set(sig_new))
+    changed = sorted(k for k in set(sig_new) & set(sig_old) if sig_new[k] != sig_old[k])
+    print(f'{path}: package rebuild differs')
+    print(f'  reactions only in rebuild ({len(only_new)}): {only_new[:10]}')
+    print(f'  reactions only in committed ({len(only_old)}): {only_old[:10]}')
+    print(f'  changed bounds/stoichiometry ({len(changed)}): {changed[:10]}')
+    alt = path.replace('.json', '_pkgbuild.json')
+    cobra.io.save_json_model(model, alt)
+    print(f'  rebuild saved to {alt}')
 
 
 def apply_medium(model):
@@ -186,8 +208,7 @@ def stoich_dict(r):
     return {m.id: round(v, 8) for m, v in r.metabolites.items()}
 
 
-def compare(msc1, msc2, label1, label2):
-    m1, m2 = msc1.model, msc2.model
+def compare(m1, m2, label1, label2):
     print('\n' + '=' * 70)
     print(f'STRUCTURE           {label1:>25} {label2:>25}')
     print(f'  reactions         {len(m1.reactions):>25} {len(m2.reactions):>25}')
@@ -235,8 +256,7 @@ def compare(msc1, msc2, label1, label2):
     print(f'  only in {label2} ({len(only2)}): {only2}')
 
 
-def simulate(msc, label):
-    model = msc.model
+def simulate(model, label):
     model.solver = 'glpk'
     apply_medium(model)
     model.objective = 'bio1'
@@ -283,26 +303,25 @@ if __name__ == '__main__':
     print('\n== version 1: members parsed from comm_model.json + grafted GPRs ==')
     member_a = parse_member_from_comm(model_comm, 'A', '3H11', gpr_acido)
     member_r = parse_member_from_comm(model_comm, 'R', 'R12', gpr_rhoda)
-    msc_parsed = build_community([member_a, member_r], 'SynCom_from_comm')
+    model_parsed = build_community([member_a, member_r], 'SynCom_from_comm')
 
     print('\n== version 2: members from repo isolate models ==')
     iso_a = cobra.io.load_json_model(f'{DATA}/model_acido_gf.json')
     iso_r = cobra.io.load_json_model(f'{DATA}/model_rhoda_gf.json')
-    msc_isolates = build_community([iso_a, iso_r], 'SynCom_from_isolates')
+    model_isolates = build_community([iso_a, iso_r], 'SynCom_from_isolates')
 
-    cobra.io.save_json_model(msc_parsed.model, f'{DATA}/comm_model_mscommunity_parsed.json')
-    cobra.io.save_json_model(msc_isolates.model, f'{DATA}/comm_model_mscommunity_isolates.json')
-    print('\nsaved data/comm_model_mscommunity_parsed.json and data/comm_model_mscommunity_isolates.json')
+    save_model(model_parsed, f'{DATA}/comm_model_mscommunity_parsed.json')
+    save_model(model_isolates, f'{DATA}/comm_model_mscommunity_isolates.json')
 
-    compare(msc_parsed, msc_isolates, 'parsed-from-comm', 'from-isolates')
-    simulate(msc_parsed, 'parsed-from-comm')
-    simulate(msc_isolates, 'from-isolates')
+    compare(model_parsed, model_isolates, 'parsed-from-comm', 'from-isolates')
+    simulate(model_parsed, 'parsed-from-comm')
+    simulate(model_isolates, 'from-isolates')
 
     # attribute the growth gap between the two versions: knock out reaction
     # groups only present in the from-isolates members, and apply the comm
     # model's directionality curations, then re-optimize
     print('\n### growth-gap attribution (from-isolates, max community biomass)')
-    m2 = msc_isolates.model
+    m2 = model_isolates
     groups = {
         'rxn14427 (Nar cyt-c +2H+)': ['rxn14427_c1', 'rxn14427_c2'],
         'rxn11937 (NAD N2O-forming)': ['rxn11937_c1', 'rxn11937_c2'],

@@ -1,12 +1,12 @@
 """Kinetic-coefficient sweep of the parsed MSCommunity model on the GSP medium.
 
-Applies the MSCommunity/CommKineticPkg community kinetic constraint
-(sum of |flux| over each member's reactions <= K * member biomass flux;
-implemented directly with optlang since the shipped CommKineticPkg targets an
-older MSCommunity API) for a spectrum of 10 kinetic coefficients K, re-runs
-pFBA for each, and records each member's net cellular reaction (membrane-
-crossing fluxes normalized per gDW biomass) and its deltaG from the ModelSEED
-formation energies (data/compound_formation_energies.json).
+Applies the MSCommunity community kinetic constraint (sum of |flux| over each
+member's reactions <= K * member biomass flux) through the standalone
+MSCommunity package (mscommunity.mscommsim.MSCommunity.add_commkinetics) for a
+spectrum of kinetic coefficients K, re-runs pFBA for each, and records each
+member's net cellular reaction (membrane-crossing fluxes normalized per gDW
+biomass) and its deltaG from the ModelSEED formation energies
+(data/compound_formation_energies.json).
 
 Baseline (unconstrained) pFBA ratios sum|v|/mu are ~1336 (3H11) and ~1243
 (R12), so K spans 100 (strongly limiting) to 2000 (non-binding).
@@ -25,7 +25,7 @@ from datetime import date
 warnings.filterwarnings('ignore')
 
 import cobra
-from optlang.symbolics import Zero
+from mscommunity.mscommsim import MSCommunity
 
 from simulate_community import GSP_MEDIUM, MODEL
 from net_cell_reactions import net_exchange, equation_string, FORMATION
@@ -41,31 +41,32 @@ EPS = 1e-9
 
 
 def member_reactions(model, comp, bio_id):
+    """Reactions counted in the reported per-member flux sums."""
     return [r for r in model.reactions
-            if comp in r.compartments and not r.id.startswith(('EX_', 'SK_'))
+            if comp in r.compartments and not r.id.startswith(('EX_', 'SK_', 'DM_'))
             and r.id != bio_id]
 
 
-def add_kinetic_constraints(model, k):
-    constraints = []
-    for comp, (_, bio_id) in MEMBERS.items():
-        cons = model.problem.Constraint(Zero, ub=0, name=f'commkin_{comp}')
-        model.add_cons_vars(cons)
-        model.solver.update()
-        bio = model.reactions.get_by_id(bio_id)
-        coefs = {}
-        for r in member_reactions(model, comp, bio_id):
-            coefs[r.forward_variable] = 1
-            coefs[r.reverse_variable] = 1
-        coefs[bio.forward_variable] = -k
-        coefs[bio.reverse_variable] = k
-        cons.set_linear_coefficients(coefs)
-        constraints.append(cons)
-    return constraints
+def wrap_community(model):
+    """Wrap the loaded community model in the MSCommunity package class,
+    preserving the model's 40/60 (3H11/R12) biomass coupling."""
+    abundances = {
+        '3H11': {'abundance': 0.4,
+                 'biomass_compound': model.metabolites.get_by_id('cpd11416_c1')},
+        'R12': {'abundance': 0.6,
+                'biomass_compound': model.metabolites.get_by_id('cpd11416_c2')},
+    }
+    # construction installs the kinetic rows; start non-binding, each sweep
+    # rung replaces them via add_commkinetics
+    return MSCommunity(model=model, abundances=abundances,
+                       kinetic_coeff=max(K_VALUES + [2000]), ID='SynCom')
 
 
 if __name__ == '__main__':
     model = cobra.io.load_json_model(MODEL)
+    model.solver = 'glpk'
+    msc = wrap_community(model)
+    model = msc.util.model  # the package works on its own copy
     model.solver = 'glpk'
     for r in model.reactions:
         if r.id.startswith('EX_'):
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     print(f'{"K":>6} {"bio1":>9} {"mu_3H11":>9} {"mu_R12":>9} '
           f'{"dG_3H11":>9} {"dG_R12":>9}  (dG in kcal/gDW biomass)')
     for k in K_VALUES:
-        cons = add_kinetic_constraints(model, k)
+        msc.add_commkinetics(k)  # replaces each member's _commKin row
         try:
             sol = cobra.flux_analysis.pfba(model)
             status = sol.status
@@ -143,7 +144,6 @@ if __name__ == '__main__':
                     row[name] = (0.0, float('nan'))
                 run['members'][name] = entry
         runs.append(run)
-        model.remove_cons_vars(cons)
         b = run['community_biomass']
         print(f'{k:>6} {b if b is not None else float("nan"):>9.5f} '
               f'{row.get("3H11", (float("nan"),))[0]:>9.5f} {row.get("R12", (float("nan"),))[0]:>9.5f} '
@@ -154,9 +154,9 @@ if __name__ == '__main__':
             'model': MODEL,
             'medium': 'GSP community medium (analysis.ipynb)',
             'method': 'pFBA max bio1 with community kinetic constraint '
-                      'sum|v_member| <= K * mu_member (CommKineticPkg formulation, '
-                      'implemented via optlang); net reaction and deltaG computed as in '
-                      'net_cell_reactions.py',
+                      'sum|v_member| <= K * mu_member, installed per rung through '
+                      'mscommunity.mscommsim.MSCommunity.add_commkinetics; net reaction '
+                      'and deltaG computed as in net_cell_reactions.py',
             'kinetic_coefficients': K_VALUES,
             'baseline_unconstrained_flux_per_biomass': {'3H11': 1335.7, 'R12': 1243.0},
             'formation_energies': FORMATION,
