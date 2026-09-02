@@ -14,8 +14,13 @@ import sys
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else './data/kinetic_sweep_net_reactions_800-1400.json'
 OUT = SRC.replace('kinetic_sweep_net_reactions', 'kinetic_sweep_summary').replace('.json', '.csv')
+FIT = SRC.replace('kinetic_sweep_net_reactions', 'kinetic_sweep_fit')
 
 runs = json.load(open(SRC))['runs']
+try:
+    fits = json.load(open(FIT))['fits']  # from evaluate_syncom_fit.py
+except FileNotFoundError:
+    fits = {}
 rows = []
 for run in runs:
     a = run['members'].get('3H11', {})
@@ -36,6 +41,8 @@ for run in runs:
         '3H11_ATP_consumption_mmol_per_gDW_h': a.get('atp_consumption_mmol_gDW_h', ''),
         'R12_ATP_production_mmol_per_gDW_h': r.get('atp_production_mmol_gDW_h', ''),
         'R12_ATP_consumption_mmol_per_gDW_h': r.get('atp_consumption_mmol_gDW_h', ''),
+        'fit_NRMSE_vs_SynCom_timecourse':
+            fits.get(str(run['kinetic_coeff']), {}).get('mean', ''),
     }
     rows.append(row)
 
