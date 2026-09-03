@@ -19,28 +19,35 @@ from plots import CommPlots
 
 OUT = './data/fitted_acetate_uptake.json'
 
-if __name__ == '__main__':
-    exp = CommPlots.get_exp_syncom()
-    t, x, ac = exp['i'], exp['biomass'], exp['acetate']
-    # cumulative integral of measured biomass (trapezoid), gDW h / L
+def fit_series(t, x, series):
+    """Least-squares q for series(t) = series(0) - q * integral X dtau."""
     integral = [0.0]
     for k in range(1, len(t)):
         integral.append(integral[-1] + (x[k] + x[k - 1]) / 2 * (t[k] - t[k - 1]))
-    drawdown = [ac[0] - a for a in ac]
+    drawdown = [series[0] - a for a in series]
     q = (sum(d * i for d, i in zip(drawdown, integral))
          / sum(i * i for i in integral))
-    predicted = [ac[0] - q * i for i in integral]
-    ss_res = sum((p - a) ** 2 for p, a in zip(predicted, ac))
-    mean = sum(ac) / len(ac)
-    ss_tot = sum((a - mean) ** 2 for a in ac)
-    r2 = 1 - ss_res / ss_tot
-    print(f'fitted specific acetate uptake q = {q:.2f} mmol/gDW/h (R^2 = {r2:.3f})')
-    for tt, a, p in zip(t, ac, predicted):
-        print(f'  t={tt:>4} h   measured {a:6.2f}   fitted {p:6.2f} mM')
+    predicted = [series[0] - q * i for i in integral]
+    ss_res = sum((p - a) ** 2 for p, a in zip(predicted, series))
+    mean = sum(series) / len(series)
+    r2 = 1 - ss_res / sum((a - mean) ** 2 for a in series)
+    return q, r2, predicted
+
+
+if __name__ == '__main__':
+    exp = CommPlots.get_exp_syncom()
+    t, x = exp['i'], exp['biomass']
+    out = {'method': 'least-squares fit of C(t) = C(0) - q * trapezoid-integral of the '
+                     'measured biomass curve, over the measured SynCom series '
+                     '(CommPlots.get_exp_syncom, 0-119 h)',
+           'date': date.today().isoformat()}
+    for key, label in [('acetate', 'acetate'), ('no3', 'nitrate')]:
+        q, r2, predicted = fit_series(t, x, exp[key])
+        print(f'fitted specific {label} uptake q = {q:.2f} mmol/gDW/h (R^2 = {r2:.3f})')
+        for tt, a, p in zip(t, exp[key], predicted):
+            print(f'  t={tt:>4} h   measured {a:6.2f}   fitted {p:6.2f} mM')
+        out[f'q_{label}_mmol_per_gDW_h'] = round(q, 3)
+        out[f'{label}_r_squared'] = round(r2, 4)
     with open(OUT, 'w') as fh:
-        json.dump({'q_acetate_mmol_per_gDW_h': round(q, 3), 'r_squared': round(r2, 4),
-                   'method': 'least-squares fit of acetate(t) = acetate(0) - q * '
-                             'trapezoid-integral of the measured biomass curve, over the '
-                             'measured SynCom acetate series (CommPlots.get_exp_syncom, 0-119 h)',
-                   'date': date.today().isoformat()}, fh, indent=1)
+        json.dump(out, fh, indent=1)
     print(f'saved {OUT}')

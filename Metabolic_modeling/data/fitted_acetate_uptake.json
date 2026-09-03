@@ -1,6 +1,8 @@
 {
+ "method": "least-squares fit of C(t) = C(0) - q * trapezoid-integral of the measured biomass curve, over the measured SynCom series (CommPlots.get_exp_syncom, 0-119 h)",
+ "date": "2026-09-03",
  "q_acetate_mmol_per_gDW_h": 44.474,
- "r_squared": 0.7125,
- "method": "least-squares fit of acetate(t) = acetate(0) - q * trapezoid-integral of the measured biomass curve, over the measured SynCom acetate series (CommPlots.get_exp_syncom, 0-119 h)",
- "date": "2026-09-02"
+ "acetate_r_squared": 0.7125,
+ "q_nitrate_mmol_per_gDW_h": 84.192,
+ "nitrate_r_squared": 0.1073
 }

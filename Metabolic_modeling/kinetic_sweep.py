@@ -15,9 +15,11 @@ Results: printed summary + data/kinetic_sweep_net_reactions.json (default K
 ladder) or data/kinetic_sweep_net_reactions_<min>-<max>.json (CLI K values).
 
 With --fitted, the sweep additionally imposes the data-derived constraints:
-the community acetate uptake fitted from the measured SynCom time course
-(fit_acetate_uptake.py -> data/fitted_acetate_uptake.json) replaces the GSP
-bound, and each member carries its non-growth maintenance ATP floor - the
+the community acetate consumption is FIXED (equality, both bounds) at the
+rate fitted from the measured SynCom time course
+(fit_acetate_uptake.py -> data/fitted_acetate_uptake.json) - every solution
+must consume exactly the prescribed acetate - and each member carries its
+non-growth maintenance ATP floor - the
 calc_max_ATPM values of analysis.ipynb (9.6757 for 3H11, 23.8012 for R12,
 mmol/gDW/h in each monoculture) scaled by the member's 0.4/0.6 abundance,
 since community-model fluxes are expressed per gDW of total community
@@ -94,10 +96,17 @@ if __name__ == '__main__':
     fitted_info = {}
     if FITTED:
         fitted_info = json.load(open('./data/fitted_acetate_uptake.json'))
-        model.reactions.EX_cpd00029_e0.lower_bound = -fitted_info['q_acetate_mmol_per_gDW_h']
+        q_ac = fitted_info['q_acetate_mmol_per_gDW_h']
+        q_no3 = fitted_info['q_nitrate_mmol_per_gDW_h']
+        model.reactions.EX_cpd00029_e0.bounds = (-q_ac, -q_ac)  # consumption forced
+        # the GSP nitrate cap (12) cannot oxidize the prescribed acetate
+        # (44.47 carries ~356 e- meq against <=60), so nitrate is capped at
+        # its data-fitted rate instead
+        model.reactions.EX_cpd00209_e0.lower_bound = -q_no3
         model.reactions.ATPM_c1.lower_bound = ABUNDANCE['3H11'] * ATPM_MONOCULTURE['3H11']
         model.reactions.ATPM_c2.lower_bound = ABUNDANCE['R12'] * ATPM_MONOCULTURE['R12']
-        print(f"fitted constraints: acetate uptake <= {fitted_info['q_acetate_mmol_per_gDW_h']}, "
+        print(f"fitted constraints: acetate consumption fixed at {q_ac}, "
+              f"nitrate uptake <= {q_no3}, "
               f"ATPM_c1 >= {model.reactions.ATPM_c1.lower_bound:.3f}, "
               f"ATPM_c2 >= {model.reactions.ATPM_c2.lower_bound:.3f} mmol/gDW/h")
     model.objective = 'bio1'
@@ -185,8 +194,10 @@ if __name__ == '__main__':
                       'and deltaG computed as in net_cell_reactions.py',
             'kinetic_coefficients': K_VALUES,
             'baseline_unconstrained_flux_per_biomass': {'3H11': 1335.7, 'R12': 1243.0},
-            'fitted_constraints': ({'acetate_uptake_mmol_per_gDW_h': fitted_info['q_acetate_mmol_per_gDW_h'],
-                                    'acetate_fit_r_squared': fitted_info['r_squared'],
+            'fitted_constraints': ({'acetate_consumption_fixed_mmol_per_gDW_h': fitted_info['q_acetate_mmol_per_gDW_h'],
+                                    'acetate_fit_r_squared': fitted_info['acetate_r_squared'],
+                                    'nitrate_uptake_cap_mmol_per_gDW_h': fitted_info['q_nitrate_mmol_per_gDW_h'],
+                                    'nitrate_fit_r_squared': fitted_info['nitrate_r_squared'],
                                     'ATPM_floors_mmol_per_gDW_h': {
                                         m: round(ABUNDANCE[m] * ATPM_MONOCULTURE[m], 4)
                                         for m in ABUNDANCE},
