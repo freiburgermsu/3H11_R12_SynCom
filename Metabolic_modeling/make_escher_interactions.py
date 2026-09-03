@@ -83,3 +83,14 @@ build_map_from_interactions(
     names_csv=NAMES_OUT,
     min_abs_flux=MIN_FLUX,
 )
+
+# each kappa community fully isolated: one map per condition, so no nodes,
+# layout, or Escher same-species identity are shared between simulations
+paths = build_map_from_interactions(
+    CSV_OUT,
+    output_path=MAP_OUT,
+    names_csv=NAMES_OUT,
+    min_abs_flux=MIN_FLUX,
+    separate_maps=True,
+)
+print('per-condition maps:', ', '.join(p.name for p in paths))

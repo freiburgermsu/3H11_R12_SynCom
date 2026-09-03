@@ -1,0 +1,616 @@
+[
+   {
+      "map_name": "escher_syncom_interactions_k1285",
+      "map_id": "db21e9131e0a",
+      "map_description": "Net organism exchange reactions for 2 members",
+      "homepage": "https://escher.github.io",
+      "schema": "https://escher.github.io/escher/jsonschema/1-0-0#"
+   },
+   {
+      "reactions": {
+         "0": {
+            "name": "3H11",
+            "bigg_id": "3H11k1285",
+            "reversibility": false,
+            "label_x": -36.0,
+            "label_y": -60.0,
+            "gene_reaction_rule": "",
+            "genes": [],
+            "metabolites": [
+               {
+                  "bigg_id": "cpd00001",
+                  "coefficient": 64.861179
+               },
+               {
+                  "bigg_id": "cpd00009",
+                  "coefficient": -0.489433
+               },
+               {
+                  "bigg_id": "cpd00011",
+                  "coefficient": 36.940607
+               },
+               {
+                  "bigg_id": "cpd00013",
+                  "coefficient": -5.925537
+               },
+               {
+                  "bigg_id": "cpd00020",
+                  "coefficient": -0.32233
+               },
+               {
+                  "bigg_id": "cpd00029",
+                  "coefficient": -44.602094
+               },
+               {
+                  "bigg_id": "cpd00048",
+                  "coefficient": -0.192088
+               },
+               {
+                  "bigg_id": "cpd00067",
+                  "coefficient": -26.607657
+               },
+               {
+                  "bigg_id": "cpd00075",
+                  "coefficient": 81.826071
+               },
+               {
+                  "bigg_id": "cpd00081",
+                  "coefficient": 0.039221
+               },
+               {
+                  "bigg_id": "cpd00106",
+                  "coefficient": 6.732116
+               },
+               {
+                  "bigg_id": "cpd00209",
+                  "coefficient": -81.826071
+               }
+            ],
+            "segments": {
+               "0": {
+                  "from_node_id": "14",
+                  "to_node_id": "13",
+                  "b1": null,
+                  "b2": null
+               },
+               "1": {
+                  "from_node_id": "15",
+                  "to_node_id": "13",
+                  "b1": null,
+                  "b2": null
+               },
+               "2": {
+                  "from_node_id": "15",
+                  "to_node_id": "5",
+                  "b1": {
+                     "x": 465.0,
+                     "y": 0.0
+                  },
+                  "b2": {
+                     "x": 1355.0,
+                     "y": 0.0
+                  }
+               },
+               "3": {
+                  "from_node_id": "14",
+                  "to_node_id": "1",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 26.25
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 78.75
+                  }
+               },
+               "4": {
+                  "from_node_id": "15",
+                  "to_node_id": "6",
+                  "b1": {
+                     "x": 465.0,
+                     "y": 52.5
+                  },
+                  "b2": {
+                     "x": 1355.0,
+                     "y": 157.5
+                  }
+               },
+               "5": {
+                  "from_node_id": "14",
+                  "to_node_id": "2",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 52.5
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 157.5
+                  }
+               },
+               "6": {
+                  "from_node_id": "14",
+                  "to_node_id": "8",
+                  "b1": {
+                     "x": -100.0,
+                     "y": 2.5
+                  },
+                  "b2": {
+                     "x": -260.0,
+                     "y": 7.5
+                  }
+               },
+               "7": {
+                  "from_node_id": "14",
+                  "to_node_id": "11",
+                  "b1": {
+                     "x": 70.0,
+                     "y": 27.5
+                  },
+                  "b2": {
+                     "x": 250.0,
+                     "y": 82.5
+                  }
+               },
+               "8": {
+                  "from_node_id": "14",
+                  "to_node_id": "0",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 0.0
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 0.0
+                  }
+               },
+               "9": {
+                  "from_node_id": "14",
+                  "to_node_id": "3",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 78.75
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 236.25
+                  }
+               },
+               "10": {
+                  "from_node_id": "15",
+                  "to_node_id": "9",
+                  "b1": {
+                     "x": -70.0,
+                     "y": 52.5
+                  },
+                  "b2": {
+                     "x": -250.0,
+                     "y": 157.5
+                  }
+               },
+               "11": {
+                  "from_node_id": "15",
+                  "to_node_id": "12",
+                  "b1": {
+                     "x": 100.0,
+                     "y": 77.5
+                  },
+                  "b2": {
+                     "x": 260.0,
+                     "y": 232.5
+                  }
+               },
+               "12": {
+                  "from_node_id": "15",
+                  "to_node_id": "10",
+                  "b1": {
+                     "x": -70.0,
+                     "y": 102.5
+                  },
+                  "b2": {
+                     "x": -250.0,
+                     "y": 307.5
+                  }
+               },
+               "13": {
+                  "from_node_id": "14",
+                  "to_node_id": "4",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 105.0
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 315.0
+                  }
+               }
+            }
+         },
+         "1": {
+            "name": "R12",
+            "bigg_id": "R12k1285",
+            "reversibility": false,
+            "label_x": -27.0,
+            "label_y": 360.0,
+            "gene_reaction_rule": "",
+            "genes": [],
+            "metabolites": [
+               {
+                  "bigg_id": "cpd00001",
+                  "coefficient": 19.9606
+               },
+               {
+                  "bigg_id": "cpd00009",
+                  "coefficient": -0.12755
+               },
+               {
+                  "bigg_id": "cpd00011",
+                  "coefficient": 18.829876
+               },
+               {
+                  "bigg_id": "cpd00013",
+                  "coefficient": -1.544242
+               },
+               {
+                  "bigg_id": "cpd00020",
+                  "coefficient": 0.32233
+               },
+               {
+                  "bigg_id": "cpd00029",
+                  "coefficient": 0.128094
+               },
+               {
+                  "bigg_id": "cpd00067",
+                  "coefficient": -32.538239
+               },
+               {
+                  "bigg_id": "cpd00075",
+                  "coefficient": -18.477063
+               },
+               {
+                  "bigg_id": "cpd00081",
+                  "coefficient": -0.039221
+               },
+               {
+                  "bigg_id": "cpd00106",
+                  "coefficient": -6.732116
+               },
+               {
+                  "bigg_id": "cpd00209",
+                  "coefficient": -2.365929
+               },
+               {
+                  "bigg_id": "cpd00659",
+                  "coefficient": 10.421496
+               }
+            ],
+            "segments": {
+               "14": {
+                  "from_node_id": "17",
+                  "to_node_id": "16",
+                  "b1": null,
+                  "b2": null
+               },
+               "15": {
+                  "from_node_id": "18",
+                  "to_node_id": "16",
+                  "b1": null,
+                  "b2": null
+               },
+               "16": {
+                  "from_node_id": "18",
+                  "to_node_id": "5",
+                  "b1": {
+                     "x": 465.0,
+                     "y": 315.0
+                  },
+                  "b2": {
+                     "x": 1355.0,
+                     "y": 105.0
+                  }
+               },
+               "17": {
+                  "from_node_id": "17",
+                  "to_node_id": "1",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 341.25
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 183.75
+                  }
+               },
+               "18": {
+                  "from_node_id": "18",
+                  "to_node_id": "6",
+                  "b1": {
+                     "x": 465.0,
+                     "y": 367.5
+                  },
+                  "b2": {
+                     "x": 1355.0,
+                     "y": 262.5
+                  }
+               },
+               "19": {
+                  "from_node_id": "17",
+                  "to_node_id": "2",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 367.5
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 262.5
+                  }
+               },
+               "20": {
+                  "from_node_id": "18",
+                  "to_node_id": "8",
+                  "b1": {
+                     "x": -70.0,
+                     "y": 317.5
+                  },
+                  "b2": {
+                     "x": -250.0,
+                     "y": 112.5
+                  }
+               },
+               "21": {
+                  "from_node_id": "18",
+                  "to_node_id": "11",
+                  "b1": {
+                     "x": 100.0,
+                     "y": 342.5
+                  },
+                  "b2": {
+                     "x": 260.0,
+                     "y": 187.5
+                  }
+               },
+               "22": {
+                  "from_node_id": "17",
+                  "to_node_id": "3",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 393.75
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 341.25
+                  }
+               },
+               "23": {
+                  "from_node_id": "17",
+                  "to_node_id": "9",
+                  "b1": {
+                     "x": -100.0,
+                     "y": 367.5
+                  },
+                  "b2": {
+                     "x": -260.0,
+                     "y": 262.5
+                  }
+               },
+               "24": {
+                  "from_node_id": "17",
+                  "to_node_id": "12",
+                  "b1": {
+                     "x": 70.0,
+                     "y": 392.5
+                  },
+                  "b2": {
+                     "x": 250.0,
+                     "y": 337.5
+                  }
+               },
+               "25": {
+                  "from_node_id": "17",
+                  "to_node_id": "10",
+                  "b1": {
+                     "x": -100.0,
+                     "y": 417.5
+                  },
+                  "b2": {
+                     "x": -260.0,
+                     "y": 412.5
+                  }
+               },
+               "26": {
+                  "from_node_id": "17",
+                  "to_node_id": "4",
+                  "b1": {
+                     "x": -465.0,
+                     "y": 420.0
+                  },
+                  "b2": {
+                     "x": -1355.0,
+                     "y": 420.0
+                  }
+               },
+               "27": {
+                  "from_node_id": "18",
+                  "to_node_id": "7",
+                  "b1": {
+                     "x": 465.0,
+                     "y": 420.0
+                  },
+                  "b2": {
+                     "x": 1355.0,
+                     "y": 420.0
+                  }
+               }
+            }
+         }
+      },
+      "nodes": {
+         "0": {
+            "node_type": "metabolite",
+            "x": -1800.0,
+            "y": 0.0,
+            "bigg_id": "cpd00048",
+            "name": "Sulfate",
+            "label_x": -1918.0,
+            "label_y": 5.0,
+            "node_is_primary": true
+         },
+         "1": {
+            "node_type": "metabolite",
+            "x": -1800.0,
+            "y": 105.0,
+            "bigg_id": "cpd00009",
+            "name": "Phosphate",
+            "label_x": -1918.0,
+            "label_y": 110.0,
+            "node_is_primary": true
+         },
+         "2": {
+            "node_type": "metabolite",
+            "x": -1800.0,
+            "y": 210.0,
+            "bigg_id": "cpd00013",
+            "name": "NH3",
+            "label_x": -1918.0,
+            "label_y": 215.0,
+            "node_is_primary": true
+         },
+         "3": {
+            "node_type": "metabolite",
+            "x": -1800.0,
+            "y": 315.0,
+            "bigg_id": "cpd00067",
+            "name": "H+",
+            "label_x": -1918.0,
+            "label_y": 320.0,
+            "node_is_primary": true
+         },
+         "4": {
+            "node_type": "metabolite",
+            "x": -1800.0,
+            "y": 420.0,
+            "bigg_id": "cpd00209",
+            "name": "Nitrate",
+            "label_x": -1918.0,
+            "label_y": 425.0,
+            "node_is_primary": true
+         },
+         "5": {
+            "node_type": "metabolite",
+            "x": 1800.0,
+            "y": 0.0,
+            "bigg_id": "cpd00001",
+            "name": "H2O",
+            "label_x": 1822.0,
+            "label_y": 5.0,
+            "node_is_primary": true
+         },
+         "6": {
+            "node_type": "metabolite",
+            "x": 1800.0,
+            "y": 210.0,
+            "bigg_id": "cpd00011",
+            "name": "CO2",
+            "label_x": 1822.0,
+            "label_y": 215.0,
+            "node_is_primary": true
+         },
+         "7": {
+            "node_type": "metabolite",
+            "x": 1800.0,
+            "y": 420.0,
+            "bigg_id": "cpd00659",
+            "name": "Nitrous oxide",
+            "label_x": 1822.0,
+            "label_y": 425.0,
+            "node_is_primary": true
+         },
+         "8": {
+            "node_type": "metabolite",
+            "x": -340.0,
+            "y": 10.0,
+            "bigg_id": "cpd00020",
+            "name": "Pyruvate",
+            "label_x": -458.0,
+            "label_y": 15.0,
+            "node_is_primary": true
+         },
+         "9": {
+            "node_type": "metabolite",
+            "x": -340.0,
+            "y": 210.0,
+            "bigg_id": "cpd00075",
+            "name": "Nitrite",
+            "label_x": -458.0,
+            "label_y": 215.0,
+            "node_is_primary": true
+         },
+         "10": {
+            "node_type": "metabolite",
+            "x": -340.0,
+            "y": 410.0,
+            "bigg_id": "cpd00106",
+            "name": "Fumarate",
+            "label_x": -458.0,
+            "label_y": 415.0,
+            "node_is_primary": true
+         },
+         "11": {
+            "node_type": "metabolite",
+            "x": 340.0,
+            "y": 110.0,
+            "bigg_id": "cpd00029",
+            "name": "Acetate",
+            "label_x": 362.0,
+            "label_y": 115.0,
+            "node_is_primary": true
+         },
+         "12": {
+            "node_type": "metabolite",
+            "x": 340.0,
+            "y": 310.0,
+            "bigg_id": "cpd00081",
+            "name": "Sulfite",
+            "label_x": 362.0,
+            "label_y": 315.0,
+            "node_is_primary": true
+         },
+         "13": {
+            "node_type": "midmarker",
+            "x": 0.0,
+            "y": 0.0
+         },
+         "14": {
+            "node_type": "multimarker",
+            "x": -20.0,
+            "y": 0.0
+         },
+         "15": {
+            "node_type": "multimarker",
+            "x": 20.0,
+            "y": 0.0
+         },
+         "16": {
+            "node_type": "midmarker",
+            "x": 0.0,
+            "y": 420.0
+         },
+         "17": {
+            "node_type": "multimarker",
+            "x": -20.0,
+            "y": 420.0
+         },
+         "18": {
+            "node_type": "multimarker",
+            "x": 20.0,
+            "y": 420.0
+         }
+      },
+      "text_labels": {},
+      "canvas": {
+         "x": -2318.0,
+         "y": -400.0,
+         "width": 4540.0,
+         "height": 1225.0
+      }
+   }
+]
