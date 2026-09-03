@@ -1,0 +1,138 @@
+{
+ "_metadata": {
+  "source": "data/kinetic_sweep_net_reactions_fitted_2000-5000.json",
+  "experiment": "CommPlots.get_exp_syncom() (plots.py), the measured SynCom time course of analysis.ipynb, 0-119 h",
+  "method": "hourly Euler projection of each solution's community specific rates with growing biomass and proportional substrate-exhaustion scaling; NRMSE per measured series (normalized by its range), averaged over biomass, acetate, NO3, NO2, N2O; lower is better",
+  "date": "2026-09-02"
+ },
+ "fits": {
+  "2000": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "2500": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "3000": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "3500": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4000": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4050": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4100": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4150": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4200": {
+   "acetate": 0.6326,
+   "no3": 0.7878,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 0.6628,
+   "mean": 0.5955
+  },
+  "4250": {
+   "acetate": 0.3035,
+   "no3": 0.4926,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8626,
+   "mean": 3.3106
+  },
+  "4300": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  },
+  "4350": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  },
+  "4400": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  },
+  "4500": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  },
+  "4750": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  },
+  "5000": {
+   "acetate": 0.3029,
+   "no3": 0.492,
+   "no2": 0.4957,
+   "n2o": 0.3984,
+   "biomass": 14.8991,
+   "mean": 3.3176
+  }
+ }
+}
