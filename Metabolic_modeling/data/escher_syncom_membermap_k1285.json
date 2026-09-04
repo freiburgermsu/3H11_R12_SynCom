@@ -1,7 +1,7 @@
 [
    {
       "map_name": "escher_syncom_interactions_k1285",
-      "map_id": "578f9c990d99",
+      "map_id": "c02a68b211da",
       "map_description": "Net organism exchange reactions for 2 members",
       "homepage": "https://escher.github.io",
       "schema": "https://escher.github.io/escher/jsonschema/1-0-0#"
@@ -132,11 +132,11 @@
                   "to_node_id": "8",
                   "b1": {
                      "x": -90.0,
-                     "y": 2.5
+                     "y": 21.0
                   },
                   "b2": {
                      "x": -230.0,
-                     "y": 7.5
+                     "y": 63.0
                   }
                },
                "7": {
@@ -204,11 +204,11 @@
                   "to_node_id": "10",
                   "b1": {
                      "x": -60.0,
-                     "y": 102.5
+                     "y": 84.0
                   },
                   "b2": {
                      "x": -220.0,
-                     "y": 307.5
+                     "y": 252.0
                   }
                },
                "13": {
@@ -349,11 +349,11 @@
                   "to_node_id": "8",
                   "b1": {
                      "x": -60.0,
-                     "y": 317.5
+                     "y": 336.0
                   },
                   "b2": {
                      "x": -220.0,
-                     "y": 112.5
+                     "y": 168.0
                   }
                },
                "21": {
@@ -409,11 +409,11 @@
                   "to_node_id": "10",
                   "b1": {
                      "x": -90.0,
-                     "y": 417.5
+                     "y": 399.0
                   },
                   "b2": {
                      "x": -230.0,
-                     "y": 412.5
+                     "y": 357.0
                   }
                },
                "26": {
@@ -527,11 +527,11 @@
          "8": {
             "node_type": "metabolite",
             "x": -300.0,
-            "y": 10.0,
+            "y": 84.0,
             "bigg_id": "cpd00020",
             "name": "Pyruvate",
             "label_x": -418.0,
-            "label_y": 15.0,
+            "label_y": 89.0,
             "node_is_primary": true
          },
          "9": {
@@ -547,11 +547,11 @@
          "10": {
             "node_type": "metabolite",
             "x": -300.0,
-            "y": 410.0,
+            "y": 336.0,
             "bigg_id": "cpd00106",
             "name": "Fumarate",
             "label_x": -418.0,
-            "label_y": 415.0,
+            "label_y": 341.0,
             "node_is_primary": true
          },
          "11": {
