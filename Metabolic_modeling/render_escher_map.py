@@ -3,9 +3,10 @@
 Draws the community-interaction map (net organism reactions from
 make_escher_interactions.py, cleaned by clean_escher_maps.py) with
 matplotlib: member-colored reaction edges (3H11 blue, R12 orange -
-colorblind-safe categorical pair), neutral metabolite nodes, chemical-name
-labels in ink, arrowheads toward products and away from reactants, and no
-flux numbers. Vector output on a pure-white background, sized for a
+colorblind-safe categorical pair), a member-colored organism box node per
+member (escher-edit's svg_editor.mark_asv_rectangles), neutral metabolite
+nodes, chemical-name labels in ink, arrowheads toward products and away from
+reactants, and no flux numbers. Vector output on a pure-white background, sized for a
 single-column figure.
 
 Run:  ~/Documents/py_venv/bin/python render_escher_map.py \
@@ -17,7 +18,7 @@ import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
+from matplotlib.patches import FancyArrowPatch, Rectangle
 from matplotlib.path import Path
 
 from escher_edit.build_map import cross_feeding_segments
@@ -31,6 +32,13 @@ INK, MUTED = '#222222', '#8a8985'
 FIG_W = 3.35          # inches, single column
 FONT_MET, FONT_MEMBER = 6.5, 9.0
 LW = 0.9
+# escher-edit's organism box node (svg_editor.mark_asv_rectangles): a filled
+# rectangle over each member's marker backbone, so the member reads as a node
+# rather than as a bare convergence of edges. The package's 40x15 px is tuned
+# to the ABX viewBox; sized here to this map's units, spanning the +/-20
+# multimarkers that the edges attach to.
+BOX_W, BOX_H = 100.0, 50.0
+BOX_GAP = 12.0        # map units held clear around the box for arrowheads
 
 # escher-edit highlight styling (svg_editor.apply_color_highlights):
 # the nitrogen-transformation species keep full member color with filled
@@ -61,21 +69,76 @@ fig, ax = plt.subplots(figsize=(FIG_W, fig_h))
 fig.patch.set_facecolor('white')
 ax.set_facecolor('white')
 
-def seg_path(a, b, b1, b2, reverse=False):
+def seg_points(a, b, b1, b2, reverse=False):
+    """Control points of one segment: a cubic Bezier when Escher stored
+    handles, otherwise a straight line. Reversing the list traverses the same
+    curve backwards, which is how an arrowhead is aimed at the other end."""
     pts = [(a['x'], a['y'])]
-    codes = [Path.MOVETO]
     if b1 and b2:
-        pts += [(b1['x'], b1['y']), (b2['x'], b2['y']), (b['x'], b['y'])]
-        codes += [Path.CURVE4] * 3
-    else:
-        pts.append((b['x'], b['y']))
-        codes.append(Path.LINETO)
-    if reverse:
-        pts = pts[::-1]
+        pts += [(b1['x'], b1['y']), (b2['x'], b2['y'])]
+    pts.append((b['x'], b['y']))
+    return pts[::-1] if reverse else pts
+
+
+def make_path(pts):
+    codes = [Path.MOVETO] + ([Path.CURVE4] * 3 if len(pts) == 4 else [Path.LINETO])
     return Path(pts, codes)
 
-for r in body['reactions'].values():
+
+def point_at(pts, t):
+    if len(pts) == 2:
+        (ax, ay), (bx, by) = pts
+        return ax + (bx - ax) * t, ay + (by - ay) * t
+    (p0, p1, p2, p3), u = pts, 1 - t
+    return (u ** 3 * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * p3[0],
+            u ** 3 * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * p3[1])
+
+
+def head_at(pts, t):
+    """de Casteljau: the leading part of the segment, up to t."""
+    if len(pts) == 2:
+        return [pts[0], point_at(pts, t)]
+    p0, p1, p2, p3 = pts
+
+    def lerp(u, v):
+        return u[0] + (v[0] - u[0]) * t, u[1] + (v[1] - u[1]) * t
+    q0, q1, q2 = lerp(p0, p1), lerp(p1, p2), lerp(p2, p3)
+    r0, r1 = lerp(q0, q1), lerp(q1, q2)
+    return [p0, q0, r0, lerp(r0, r1)]
+
+
+def clip_to_box(pts, cy):
+    """Trim a segment that ends on a marker inside the member's box back to
+    the box edge, so the consumption arrowhead is not drawn underneath it.
+
+    FancyArrowPatch ignores shrinkA/shrinkB when handed an explicit ``path``
+    (it only honours them on the posA/posB route), so the trim has to happen
+    on the geometry rather than at draw time."""
+    hw, hh = BOX_W / 2 + BOX_GAP, BOX_H / 2 + BOX_GAP
+
+    def inside(p):
+        return abs(p[0]) <= hw and abs(p[1] - cy) <= hh
+
+    if inside(pts[0]) or not inside(pts[-1]):
+        return pts
+    lo, hi = 0.0, 1.0
+    for _ in range(40):                       # first crossing into the box
+        mid = (lo + hi) / 2
+        lo, hi = (lo, mid) if inside(point_at(pts, mid)) else (mid, hi)
+    return head_at(pts, hi)
+
+# midmarker y per reaction: the centre of that member's box node, and the
+# anchor its label is offset from
+mid_ys = {}
+for rid, r in body['reactions'].items():
+    for seg in r['segments'].values():
+        for key in ('from_node_id', 'to_node_id'):
+            if nodes[seg[key]]['node_type'] == 'midmarker':
+                mid_ys[rid] = nodes[seg[key]]['y']
+
+for rid, r in body['reactions'].items():
     color = MEMBER_COLOR.get(r['bigg_id'], INK)
+    cy = mid_ys.get(rid, 0.0)
     coef = {m['bigg_id']: m['coefficient'] for m in r['metabolites']}
     for seg_id, seg in r['segments'].items():
         a, b = nodes[seg['from_node_id']], nodes[seg['to_node_id']]
@@ -87,11 +150,13 @@ for r in body['reactions'].values():
         producing = coef.get(met['bigg_id'], 0) > 0
         highlighted = met['bigg_id'] in HIGHLIGHT
         seg_color = color if highlighted else '#' + tint_color(color, TINT_FACTOR)
-        # arrowhead into the metabolite for products, into the cluster for
-        # reactants; shrink at the metabolite end so heads sit off the node
+        # arrowhead into the metabolite for products, into the box node for
+        # reactants, whose tail is trimmed so the head clears the box
         reverse = (met is b) != producing
-        path = seg_path(a, b, seg.get('b1'), seg.get('b2'), reverse=reverse)
-        arrow = FancyArrowPatch(path=path, arrowstyle='-|>',
+        pts = seg_points(a, b, seg.get('b1'), seg.get('b2'), reverse=reverse)
+        if not producing:
+            pts = clip_to_box(pts, cy)
+        arrow = FancyArrowPatch(path=make_path(pts), arrowstyle='-|>',
                                 mutation_scale=6.5 if highlighted else 6,
                                 lw=LW * 1.2 if highlighted else LW,
                                 color=seg_color, shrinkA=0,
@@ -114,18 +179,18 @@ for n in nodes.values():
                     fontweight='bold' if highlighted else 'normal',
                     fontsize=FONT_MET, ha=ha, va='center', zorder=4)
 
-# member labels sit on the far side of each cluster from the map's centre,
-# so neither is overprinted by its own converging edges
-mid_ys = {}
 for rid, r in body['reactions'].items():
-    for seg in r['segments'].values():
-        for key in ('from_node_id', 'to_node_id'):
-            if nodes[seg[key]]['node_type'] == 'midmarker':
-                mid_ys[rid] = nodes[seg[key]]['y']
+    ax.add_patch(Rectangle((-BOX_W / 2, mid_ys.get(rid, 0.0) - BOX_H / 2),
+                           BOX_W, BOX_H,
+                           facecolor=MEMBER_COLOR.get(r['bigg_id'], INK),
+                           edgecolor='white', linewidth=0.6, zorder=3.2))
+
+# member labels sit on the far side of each box from the map's centre,
+# so neither is overprinted by its own converging edges
 centre_y = sum(mid_ys.values()) / len(mid_ys)
 for rid, r in body['reactions'].items():
     cy = mid_ys.get(rid, r.get('label_y', 0))
-    dy = -60 if cy <= centre_y else 60
+    dy = -(BOX_H / 2 + 55) if cy <= centre_y else BOX_H / 2 + 55
     ax.annotate(r['bigg_id'], (0, cy + dy),
                 color=MEMBER_COLOR.get(r['bigg_id'], INK),
                 fontsize=FONT_MEMBER, fontweight='bold',
