@@ -20,6 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 from matplotlib.path import Path
 
+from escher_edit.build_map import cross_feeding_segments
 from escher_edit.svg_editor import tint_color   # the package's fade
 
 SRC = sys.argv[1] if len(sys.argv) > 1 else './data/escher_syncom_membermap_k1285_cleaned0.json'
@@ -37,9 +38,17 @@ LW = 0.9
 HIGHLIGHT = {'Nitrate', 'Nitrite', 'Nitrous oxide', 'N2'}
 TINT_FACTOR = 0.5     # EscherStyle default
 MUTED_LABEL = '#' + tint_color(INK, TINT_FACTOR)
+DPI = 300             # raster companion resolution
 
-meta, body = json.load(open(SRC))
+escher_map = json.load(open(SRC))
+meta, body = escher_map
 nodes = body['nodes']
+
+# escher-edit reads cross-feeding off the coefficient signs: a node consumed
+# by one member and produced by another. Its ids come back s-prefixed for the
+# rendered SVG (Escher's JSON has no per-segment style), so strip that to
+# match the JSON segment keys.
+CROSS_FED = {s.lstrip('s') for s in cross_feeding_segments(escher_map)}
 
 xs = [n['x'] for n in nodes.values()]
 ys = [n['y'] for n in nodes.values()]
@@ -68,7 +77,7 @@ def seg_path(a, b, b1, b2, reverse=False):
 for r in body['reactions'].values():
     color = MEMBER_COLOR.get(r['bigg_id'], INK)
     coef = {m['bigg_id']: m['coefficient'] for m in r['metabolites']}
-    for seg in r['segments'].values():
+    for seg_id, seg in r['segments'].items():
         a, b = nodes[seg['from_node_id']], nodes[seg['to_node_id']]
         met = b if b['node_type'] == 'metabolite' else (a if a['node_type'] == 'metabolite' else None)
         if met is None:                       # marker-to-marker backbone
@@ -87,7 +96,8 @@ for r in body['reactions'].values():
                                 lw=LW * 1.2 if highlighted else LW,
                                 color=seg_color, shrinkA=0,
                                 shrinkB=5 if producing else 3,
-                                zorder=2.5 if highlighted else 2, fill=True)
+                                zorder=2.5 if highlighted else 2, fill=True,
+                                linestyle=(0, (3, 2)) if seg_id in CROSS_FED else 'solid')
         ax.add_patch(arrow)
 
 for n in nodes.values():
@@ -125,5 +135,7 @@ ax.set_xlim(x0, x1)
 ax.set_ylim(y1, y0)              # Escher y grows downward
 ax.set_aspect('equal')
 ax.axis('off')
-fig.savefig(OUT, bbox_inches='tight', pad_inches=0.02, facecolor='white')
-print(f'wrote {OUT}')
+fig.savefig(OUT, bbox_inches='tight', pad_inches=0.02, facecolor='white', dpi=DPI)
+png = OUT.rsplit('.', 1)[0] + '.png'
+fig.savefig(png, bbox_inches='tight', pad_inches=0.02, facecolor='white', dpi=DPI)
+print(f'wrote {OUT} and {png} ({DPI} dpi, {len(CROSS_FED)} cross-fed edges dashed)')
