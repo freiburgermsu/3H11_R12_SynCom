@@ -20,6 +20,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 from matplotlib.path import Path
 
+from escher_edit.svg_editor import tint_color   # the package's fade
+
 SRC = sys.argv[1] if len(sys.argv) > 1 else './data/escher_syncom_membermap_k1285_cleaned0.json'
 OUT = sys.argv[2] if len(sys.argv) > 2 else SRC.replace('_cleaned0.json', '.pdf')
 
@@ -28,6 +30,13 @@ INK, MUTED = '#222222', '#8a8985'
 FIG_W = 3.35          # inches, single column
 FONT_MET, FONT_MEMBER = 6.5, 9.0
 LW = 0.9
+
+# escher-edit highlight styling (svg_editor.apply_color_highlights):
+# the nitrogen-transformation species keep full member color with filled
+# nodes and bold labels; every other exchange is tinted toward white
+HIGHLIGHT = {'Nitrate', 'Nitrite', 'Nitrous oxide', 'N2'}
+TINT_FACTOR = 0.5     # EscherStyle default
+MUTED_LABEL = '#' + tint_color(INK, TINT_FACTOR)
 
 meta, body = json.load(open(SRC))
 nodes = body['nodes']
@@ -67,23 +76,32 @@ for r in body['reactions'].values():
                     solid_capstyle='round', zorder=2)
             continue
         producing = coef.get(met['bigg_id'], 0) > 0
+        highlighted = met['bigg_id'] in HIGHLIGHT
+        seg_color = color if highlighted else '#' + tint_color(color, TINT_FACTOR)
         # arrowhead into the metabolite for products, into the cluster for
         # reactants; shrink at the metabolite end so heads sit off the node
         reverse = (met is b) != producing
         path = seg_path(a, b, seg.get('b1'), seg.get('b2'), reverse=reverse)
         arrow = FancyArrowPatch(path=path, arrowstyle='-|>',
-                                mutation_scale=6, lw=LW, color=color,
-                                shrinkA=0, shrinkB=5 if producing else 3,
-                                zorder=2, fill=True)
+                                mutation_scale=6.5 if highlighted else 6,
+                                lw=LW * 1.2 if highlighted else LW,
+                                color=seg_color, shrinkA=0,
+                                shrinkB=5 if producing else 3,
+                                zorder=2.5 if highlighted else 2, fill=True)
         ax.add_patch(arrow)
 
 for n in nodes.values():
     if n['node_type'] == 'metabolite':
-        ax.scatter(n['x'], n['y'], s=14, facecolor='white', edgecolor=MUTED,
-                   linewidth=0.7, zorder=3)
+        highlighted = n['bigg_id'] in HIGHLIGHT
+        ax.scatter(n['x'], n['y'], s=17 if highlighted else 14,
+                   facecolor=INK if highlighted else 'white',
+                   edgecolor=INK if highlighted else MUTED,
+                   linewidth=0.7, zorder=3.5 if highlighted else 3)
         ha = 'right' if n['x'] < 0 else 'left'
         dx = -14 if n['x'] < 0 else 14
-        ax.annotate(n['bigg_id'], (n['x'] + dx, n['y']), color=INK,
+        ax.annotate(n['bigg_id'], (n['x'] + dx, n['y']),
+                    color=INK if highlighted else MUTED_LABEL,
+                    fontweight='bold' if highlighted else 'normal',
                     fontsize=FONT_MET, ha=ha, va='center', zorder=4)
 
 # member labels sit on the far side of each cluster from the map's centre,
