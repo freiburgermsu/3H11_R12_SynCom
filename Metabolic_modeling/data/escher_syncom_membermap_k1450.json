@@ -1,7 +1,7 @@
 [
    {
       "map_name": "escher_syncom_interactions_k1450",
-      "map_id": "af70070478e4",
+      "map_id": "2668cec863a6",
       "map_description": "Net organism exchange reactions for 2 members",
       "homepage": "https://escher.github.io",
       "schema": "https://escher.github.io/escher/jsonschema/1-0-0#"
@@ -79,11 +79,11 @@
                   "from_node_id": "15",
                   "to_node_id": "6",
                   "b1": {
-                     "x": 159.5,
+                     "x": 144.5,
                      "y": 0.0
                   },
                   "b2": {
-                     "x": 438.5,
+                     "x": 393.5,
                      "y": 0.0
                   }
                },
@@ -91,11 +91,11 @@
                   "from_node_id": "14",
                   "to_node_id": "0",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": -3.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": -11.25
                   }
                },
@@ -103,11 +103,11 @@
                   "from_node_id": "15",
                   "to_node_id": "7",
                   "b1": {
-                     "x": 159.5,
+                     "x": 144.5,
                      "y": 52.5
                   },
                   "b2": {
-                     "x": 438.5,
+                     "x": 393.5,
                      "y": 157.5
                   }
                },
@@ -115,11 +115,11 @@
                   "from_node_id": "14",
                   "to_node_id": "1",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 18.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 56.25
                   }
                },
@@ -127,11 +127,11 @@
                   "from_node_id": "14",
                   "to_node_id": "2",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 41.25
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 123.75
                   }
                },
@@ -139,11 +139,11 @@
                   "from_node_id": "14",
                   "to_node_id": "3",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 63.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 191.25
                   }
                },
@@ -151,11 +151,11 @@
                   "from_node_id": "14",
                   "to_node_id": "9",
                   "b1": {
-                     "x": -90.0,
+                     "x": -75.0,
                      "y": 27.5
                   },
                   "b2": {
-                     "x": -230.0,
+                     "x": -185.0,
                      "y": 82.5
                   }
                },
@@ -163,11 +163,11 @@
                   "from_node_id": "15",
                   "to_node_id": "11",
                   "b1": {
-                     "x": 90.0,
+                     "x": 75.0,
                      "y": 27.5
                   },
                   "b2": {
-                     "x": 230.0,
+                     "x": 185.0,
                      "y": 82.5
                   }
                },
@@ -175,11 +175,11 @@
                   "from_node_id": "15",
                   "to_node_id": "10",
                   "b1": {
-                     "x": -60.0,
+                     "x": -45.0,
                      "y": 77.5
                   },
                   "b2": {
-                     "x": -220.0,
+                     "x": -175.0,
                      "y": 232.5
                   }
                },
@@ -187,11 +187,11 @@
                   "from_node_id": "14",
                   "to_node_id": "4",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 86.25
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 258.75
                   }
                },
@@ -199,11 +199,11 @@
                   "from_node_id": "14",
                   "to_node_id": "12",
                   "b1": {
-                     "x": 60.0,
+                     "x": 45.0,
                      "y": 77.5
                   },
                   "b2": {
-                     "x": 220.0,
+                     "x": 175.0,
                      "y": 232.5
                   }
                }
@@ -288,11 +288,11 @@
                   "from_node_id": "18",
                   "to_node_id": "6",
                   "b1": {
-                     "x": 159.5,
+                     "x": 144.5,
                      "y": 315.0
                   },
                   "b2": {
-                     "x": 438.5,
+                     "x": 393.5,
                      "y": 105.0
                   }
                },
@@ -300,11 +300,11 @@
                   "from_node_id": "17",
                   "to_node_id": "0",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 311.25
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 93.75
                   }
                },
@@ -312,11 +312,11 @@
                   "from_node_id": "18",
                   "to_node_id": "7",
                   "b1": {
-                     "x": 159.5,
+                     "x": 144.5,
                      "y": 367.5
                   },
                   "b2": {
-                     "x": 438.5,
+                     "x": 393.5,
                      "y": 262.5
                   }
                },
@@ -324,11 +324,11 @@
                   "from_node_id": "17",
                   "to_node_id": "1",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 333.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 161.25
                   }
                },
@@ -336,11 +336,11 @@
                   "from_node_id": "17",
                   "to_node_id": "2",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 356.25
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 228.75
                   }
                },
@@ -348,11 +348,11 @@
                   "from_node_id": "17",
                   "to_node_id": "5",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 423.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 431.25
                   }
                },
@@ -360,11 +360,11 @@
                   "from_node_id": "17",
                   "to_node_id": "3",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 378.75
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 296.25
                   }
                },
@@ -372,11 +372,11 @@
                   "from_node_id": "18",
                   "to_node_id": "9",
                   "b1": {
-                     "x": -60.0,
+                     "x": -45.0,
                      "y": 342.5
                   },
                   "b2": {
-                     "x": -220.0,
+                     "x": -175.0,
                      "y": 187.5
                   }
                },
@@ -384,11 +384,11 @@
                   "from_node_id": "17",
                   "to_node_id": "11",
                   "b1": {
-                     "x": 60.0,
+                     "x": 45.0,
                      "y": 342.5
                   },
                   "b2": {
-                     "x": 220.0,
+                     "x": 175.0,
                      "y": 187.5
                   }
                },
@@ -396,11 +396,11 @@
                   "from_node_id": "17",
                   "to_node_id": "10",
                   "b1": {
-                     "x": -90.0,
+                     "x": -75.0,
                      "y": 392.5
                   },
                   "b2": {
-                     "x": -230.0,
+                     "x": -185.0,
                      "y": 337.5
                   }
                },
@@ -408,11 +408,11 @@
                   "from_node_id": "17",
                   "to_node_id": "4",
                   "b1": {
-                     "x": -159.5,
+                     "x": -144.5,
                      "y": 401.25
                   },
                   "b2": {
-                     "x": -438.5,
+                     "x": -393.5,
                      "y": 363.75
                   }
                },
@@ -420,11 +420,11 @@
                   "from_node_id": "18",
                   "to_node_id": "12",
                   "b1": {
-                     "x": 90.0,
+                     "x": 75.0,
                      "y": 392.5
                   },
                   "b2": {
-                     "x": 230.0,
+                     "x": 185.0,
                      "y": 337.5
                   }
                },
@@ -432,11 +432,11 @@
                   "from_node_id": "18",
                   "to_node_id": "8",
                   "b1": {
-                     "x": 159.5,
+                     "x": 144.5,
                      "y": 420.0
                   },
                   "b2": {
-                     "x": 438.5,
+                     "x": 393.5,
                      "y": 420.0
                   }
                }
@@ -446,131 +446,131 @@
       "nodes": {
          "0": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 0.0,
             "bigg_id": "cpd00009",
             "name": "Phosphate",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 5.0,
             "node_is_primary": true
          },
          "1": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 90.0,
             "bigg_id": "cpd00013",
             "name": "NH3",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 95.0,
             "node_is_primary": true
          },
          "2": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 180.0,
             "bigg_id": "cpd00029",
             "name": "Acetate",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 185.0,
             "node_is_primary": true
          },
          "3": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 270.0,
             "bigg_id": "cpd00067",
             "name": "H+",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 275.0,
             "node_is_primary": true
          },
          "4": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 360.0,
             "bigg_id": "cpd00209",
             "name": "Nitrate",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 365.0,
             "node_is_primary": true
          },
          "5": {
             "node_type": "metabolite",
-            "x": -578.0,
+            "x": -518.0,
             "y": 450.0,
             "bigg_id": "cpd00048",
             "name": "Sulfate",
-            "label_x": -696.0,
+            "label_x": -636.0,
             "label_y": 455.0,
             "node_is_primary": true
          },
          "6": {
             "node_type": "metabolite",
-            "x": 578.0,
+            "x": 518.0,
             "y": 15.0,
             "bigg_id": "cpd00001",
             "name": "H2O",
-            "label_x": 600.0,
+            "label_x": 540.0,
             "label_y": 20.0,
             "node_is_primary": true
          },
          "7": {
             "node_type": "metabolite",
-            "x": 578.0,
+            "x": 518.0,
             "y": 225.0,
             "bigg_id": "cpd00011",
             "name": "CO2",
-            "label_x": 600.0,
+            "label_x": 540.0,
             "label_y": 230.0,
             "node_is_primary": true
          },
          "8": {
             "node_type": "metabolite",
-            "x": 578.0,
+            "x": 518.0,
             "y": 435.0,
             "bigg_id": "cpd00659",
             "name": "Nitrous oxide",
-            "label_x": 600.0,
+            "label_x": 540.0,
             "label_y": 440.0,
             "node_is_primary": true
          },
          "9": {
             "node_type": "metabolite",
-            "x": -300.0,
+            "x": -240.0,
             "y": 125.0,
             "bigg_id": "cpd00071",
             "name": "Acetaldehyde",
-            "label_x": -418.0,
+            "label_x": -358.0,
             "label_y": 130.0,
             "node_is_primary": true
          },
          "10": {
             "node_type": "metabolite",
-            "x": -300.0,
+            "x": -240.0,
             "y": 325.0,
             "bigg_id": "cpd00106",
             "name": "Fumarate",
-            "label_x": -418.0,
+            "label_x": -358.0,
             "label_y": 330.0,
             "node_is_primary": true
          },
          "11": {
             "node_type": "metabolite",
-            "x": 300.0,
+            "x": 240.0,
             "y": 125.0,
             "bigg_id": "cpd00075",
             "name": "Nitrite",
-            "label_x": 322.0,
+            "label_x": 262.0,
             "label_y": 130.0,
             "node_is_primary": true
          },
          "12": {
             "node_type": "metabolite",
-            "x": 300.0,
+            "x": 240.0,
             "y": 325.0,
             "bigg_id": "cpd00239",
             "name": "H2S",
-            "label_x": 322.0,
+            "label_x": 262.0,
             "label_y": 330.0,
             "node_is_primary": true
          },
@@ -607,9 +607,9 @@
       },
       "text_labels": {},
       "canvas": {
-         "x": -1096.0,
+         "x": -1036.0,
          "y": -400.0,
-         "width": 2096.0,
+         "width": 1976.0,
          "height": 1255.0
       }
    }
