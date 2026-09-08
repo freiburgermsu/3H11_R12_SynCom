@@ -80,9 +80,17 @@ def seg_points(a, b, b1, b2, reverse=False):
     return pts[::-1] if reverse else pts
 
 
-def make_path(pts):
-    codes = [Path.MOVETO] + ([Path.CURVE4] * 3 if len(pts) == 4 else [Path.LINETO])
-    return Path(pts, codes)
+def make_path(chain):
+    """One Path over a chain of pieces that meet end to end."""
+    verts, codes = [chain[0][0]], [Path.MOVETO]
+    for piece in chain:
+        verts += piece[1:]
+        codes += [Path.CURVE4] * 3 if len(piece) == 4 else [Path.LINETO]
+    return Path(verts, codes)
+
+
+def flip(chain):
+    return [piece[::-1] for piece in chain[::-1]]
 
 
 def point_at(pts, t):
@@ -107,9 +115,14 @@ def head_at(pts, t):
     return [p0, q0, r0, lerp(r0, r1)]
 
 
-def clip_to_box(pts, cy):
-    """Trim a segment that ends on a marker inside the member's box back to
-    the box edge, so the consumption arrowhead is not drawn underneath it.
+def chain_point(chain, t):
+    i = min(int(t), len(chain) - 1)
+    return point_at(chain[i], t - i)
+
+
+def clip_to_box(chain, cx, cy):
+    """Trim a chain that ends on an anchor inside the member's box back to the
+    box edge, so the consumption arrowhead is not drawn underneath it.
 
     FancyArrowPatch ignores shrinkA/shrinkB when handed an explicit ``path``
     (it only honours them on the posA/posB route), so the trim has to happen
@@ -117,52 +130,90 @@ def clip_to_box(pts, cy):
     hw, hh = BOX_W / 2 + BOX_GAP, BOX_H / 2 + BOX_GAP
 
     def inside(p):
-        return abs(p[0]) <= hw and abs(p[1] - cy) <= hh
+        return abs(p[0] - cx) <= hw and abs(p[1] - cy) <= hh
 
-    if inside(pts[0]) or not inside(pts[-1]):
-        return pts
-    lo, hi = 0.0, 1.0
-    for _ in range(40):                       # first crossing into the box
+    if inside(chain[0][0]) or not inside(chain[-1][-1]):
+        return chain
+    lo, hi = 0.0, float(len(chain))
+    for _ in range(50):                       # first crossing into the box
         mid = (lo + hi) / 2
-        lo, hi = (lo, mid) if inside(point_at(pts, mid)) else (mid, hi)
-    return head_at(pts, hi)
+        lo, hi = (lo, mid) if inside(chain_point(chain, mid)) else (mid, hi)
+    i = min(int(hi), len(chain) - 1)
+    return chain[:i] + [head_at(chain[i], hi - i)]
 
-# midmarker y per reaction: the centre of that member's box node, and the
-# anchor its label is offset from
-mid_ys = {}
+
+def edge_chains(reaction, nodes):
+    """Group a reaction's segments into one chain per compound.
+
+    A compound on the far side of the member reaches it around the corner of
+    its box, so build_map routes that edge through waypoint markers and Escher
+    stores it as several chained segments. Walk each compound back through
+    those waypoints to the face anchor it leaves from, so the edge is drawn --
+    and arrowed, trimmed and dashed -- as the single curve it represents.
+    """
+    segs = reaction['segments']
+    mid = next(i for s in segs.values() for i in (s['from_node_id'], s['to_node_id'])
+               if nodes[i]['node_type'] == 'midmarker')
+    anchors = {i for s in segs.values() if mid in (s['from_node_id'], s['to_node_id'])
+               for i in (s['from_node_id'], s['to_node_id']) if i != mid}
+    touching = {}
+    for sid, s in segs.items():
+        for i in (s['from_node_id'], s['to_node_id']):
+            touching.setdefault(i, []).append(sid)
+
+    chains = []
+    for nid, node in nodes.items():
+        if node['node_type'] != 'metabolite' or nid not in touching:
+            continue
+        pieces, ids, cur, seen = [], [], nid, set()
+        while cur not in anchors:
+            nxt = [i for i in touching[cur] if i not in seen]
+            assert nxt, f"{node['bigg_id']}: chain reaches no face anchor"
+            sid = nxt[0]
+            seen.add(sid)
+            s = segs[sid]
+            a, b = s['from_node_id'], s['to_node_id']
+            far = b if a == cur else a
+            # orient every piece away from the compound; the chain is flipped
+            # once at the end so it reads anchor -> compound
+            pieces.append(seg_points(nodes[cur], nodes[far], s.get('b1'), s.get('b2'),
+                                     reverse=(cur == a)))
+            ids.append(sid)
+            cur = far
+            assert len(pieces) <= len(segs), f"{node['bigg_id']}: cyclic chain"
+        chains.append((node, flip(pieces), ids))
+    return chains
+
+# midmarker per reaction: the centre of that member's box node, and the anchor
+# its label is offset from. build_map places the member column wherever the
+# layout puts it, so nothing here may assume it sits at x = 0.
+mids = {}
 for rid, r in body['reactions'].items():
     for seg in r['segments'].values():
         for key in ('from_node_id', 'to_node_id'):
             if nodes[seg[key]]['node_type'] == 'midmarker':
-                mid_ys[rid] = nodes[seg[key]]['y']
+                mids[rid] = (nodes[seg[key]]['x'], nodes[seg[key]]['y'])
+column_x = sum(x for x, _ in mids.values()) / len(mids)
 
 for rid, r in body['reactions'].items():
     color = MEMBER_COLOR.get(r['bigg_id'], INK)
-    cy = mid_ys.get(rid, 0.0)
+    cx, cy = mids.get(rid, (column_x, 0.0))
     coef = {m['bigg_id']: m['coefficient'] for m in r['metabolites']}
-    for seg_id, seg in r['segments'].items():
-        a, b = nodes[seg['from_node_id']], nodes[seg['to_node_id']]
-        met = b if b['node_type'] == 'metabolite' else (a if a['node_type'] == 'metabolite' else None)
-        if met is None:                       # marker-to-marker backbone
-            ax.plot([a['x'], b['x']], [a['y'], b['y']], color=color, lw=LW * 1.4,
-                    solid_capstyle='round', zorder=2)
-            continue
+    for met, chain, seg_ids in edge_chains(r, nodes):
         producing = coef.get(met['bigg_id'], 0) > 0
         highlighted = met['bigg_id'] in HIGHLIGHT
         seg_color = color if highlighted else '#' + tint_color(color, TINT_FACTOR)
         # arrowhead into the metabolite for products, into the box node for
         # reactants, whose tail is trimmed so the head clears the box
-        reverse = (met is b) != producing
-        pts = seg_points(a, b, seg.get('b1'), seg.get('b2'), reverse=reverse)
-        if not producing:
-            pts = clip_to_box(pts, cy)
+        pts = chain if producing else clip_to_box(flip(chain), cx, cy)
         arrow = FancyArrowPatch(path=make_path(pts), arrowstyle='-|>',
                                 mutation_scale=6.5 if highlighted else 6,
                                 lw=LW * 1.2 if highlighted else LW,
                                 color=seg_color, shrinkA=0,
                                 shrinkB=5 if producing else 3,
                                 zorder=2.5 if highlighted else 2, fill=True,
-                                linestyle=(0, (3, 2)) if seg_id in CROSS_FED else 'solid')
+                                linestyle=(0, (3, 2)) if CROSS_FED & set(seg_ids)
+                                else 'solid')
         ax.add_patch(arrow)
 
 for n in nodes.values():
@@ -172,26 +223,27 @@ for n in nodes.values():
                    facecolor=INK if highlighted else 'white',
                    edgecolor=INK if highlighted else MUTED,
                    linewidth=0.7, zorder=3.5 if highlighted else 3)
-        ha = 'right' if n['x'] < 0 else 'left'
-        dx = -14 if n['x'] < 0 else 14
+        ha = 'right' if n['x'] < column_x else 'left'
+        dx = -14 if n['x'] < column_x else 14
         ax.annotate(n['bigg_id'], (n['x'] + dx, n['y']),
                     color=INK if highlighted else MUTED_LABEL,
                     fontweight='bold' if highlighted else 'normal',
                     fontsize=FONT_MET, ha=ha, va='center', zorder=4)
 
 for rid, r in body['reactions'].items():
-    ax.add_patch(Rectangle((-BOX_W / 2, mid_ys.get(rid, 0.0) - BOX_H / 2),
+    bx, by = mids.get(rid, (column_x, 0.0))
+    ax.add_patch(Rectangle((bx - BOX_W / 2, by - BOX_H / 2),
                            BOX_W, BOX_H,
                            facecolor=MEMBER_COLOR.get(r['bigg_id'], INK),
                            edgecolor='white', linewidth=0.6, zorder=3.2))
 
 # member labels sit on the far side of each box from the map's centre,
 # so neither is overprinted by its own converging edges
-centre_y = sum(mid_ys.values()) / len(mid_ys)
+centre_y = sum(y for _, y in mids.values()) / len(mids)
 for rid, r in body['reactions'].items():
-    cy = mid_ys.get(rid, r.get('label_y', 0))
+    cx, cy = mids.get(rid, (column_x, r.get('label_y', 0)))
     dy = -(BOX_H / 2 + 55) if cy <= centre_y else BOX_H / 2 + 55
-    ax.annotate(r['bigg_id'], (0, cy + dy),
+    ax.annotate(r['bigg_id'], (cx, cy + dy),
                 color=MEMBER_COLOR.get(r['bigg_id'], INK),
                 fontsize=FONT_MEMBER, fontweight='bold',
                 ha='center', va='center', zorder=5)
