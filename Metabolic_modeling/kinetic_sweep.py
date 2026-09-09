@@ -121,13 +121,23 @@ if __name__ == '__main__':
         fitted_info = json.load(open('./data/fitted_acetate_uptake.json'))
         q_ac = fitted_info['q_acetate_mmol_per_gDW_h']
         q_no3 = fitted_info['q_nitrate_mmol_per_gDW_h']
+        # calc_max_ATPM (analysis.py) bounded biomass with growth_OD * OD_coeff while
+        # bounding uptake with the raw mM drawdown, so the floors carry exactly the same
+        # per-litre/per-vessel confusion the uptake fit did and must be rescaled with it.
+        # Left unscaled they exceed the ATP the rescaled acetate can supply and the model
+        # is infeasible at every kinetic coefficient.
+        biomass_scale = fitted_info['biomass_scale_factor']
+        atpm = {m: v / biomass_scale for m, v in ATPM_MONOCULTURE.items()}
         model.reactions.EX_cpd00029_e0.bounds = (-q_ac, -q_ac)  # consumption forced
-        # the GSP nitrate cap (12) cannot oxidize the prescribed acetate
-        # (44.47 carries ~356 e- meq against <=60), so nitrate is capped at
-        # its data-fitted rate instead
+        # Nitrate is capped at its data-fitted rate, which after the gDW/L conversion
+        # sits below the GSP medium's own cap of 12 and is therefore the binding
+        # constraint on N reduction throughout the sweep (3H11 draws 132.28 mmol
+        # NO3 per gDW biomass at mu = 0.01091 /h, i.e. exactly q_no3). Note the
+        # nitrate fit is poor (R^2 = 0.107) because the measured NO3 collapses
+        # between 42 and 53 h rather than declining with the biomass integral.
         model.reactions.EX_cpd00209_e0.lower_bound = -q_no3
-        model.reactions.ATPM_c1.lower_bound = ABUNDANCE['3H11'] * ATPM_MONOCULTURE['3H11']
-        model.reactions.ATPM_c2.lower_bound = ABUNDANCE['R12'] * ATPM_MONOCULTURE['R12']
+        model.reactions.ATPM_c1.lower_bound = ABUNDANCE['3H11'] * atpm['3H11']
+        model.reactions.ATPM_c2.lower_bound = ABUNDANCE['R12'] * atpm['R12']
         print(f"fitted constraints: acetate consumption fixed at {q_ac}, "
               f"nitrate uptake <= {q_no3}, "
               f"ATPM_c1 >= {model.reactions.ATPM_c1.lower_bound:.3f}, "
@@ -230,10 +240,14 @@ if __name__ == '__main__':
                                     'nitrate_uptake_cap_mmol_per_gDW_h': fitted_info['q_nitrate_mmol_per_gDW_h'],
                                     'nitrate_fit_r_squared': fitted_info['nitrate_r_squared'],
                                     'ATPM_floors_mmol_per_gDW_h': {
-                                        m: round(ABUNDANCE[m] * ATPM_MONOCULTURE[m], 4)
+                                        m: round(ABUNDANCE[m] * ATPM_MONOCULTURE[m]
+                                                 / fitted_info['biomass_scale_factor'], 4)
                                         for m in ABUNDANCE},
+                                    'biomass_scale_factor': fitted_info['biomass_scale_factor'],
+                                    'gdw_per_L_per_OD600': fitted_info['gdw_per_L_per_OD600'],
                                     'ATPM_provenance': 'calc_max_ATPM monoculture values '
-                                        '(analysis.ipynb), scaled by 0.4/0.6 abundance'}
+                                        '(analysis.ipynb), scaled by the measured abundances '
+                                        'and divided by the OD -> gDW/L biomass scale factor'}
                                    if FITTED else None),
             'formation_energies': FORMATION,
             'date': date.today().isoformat(),

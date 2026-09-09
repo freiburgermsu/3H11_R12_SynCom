@@ -1,0 +1,58 @@
+{
+ "_metadata": {
+  "source": "./data/kinetic_sweep_net_reactions_fitted_1279-2500.json",
+  "experiment": "CommPlots.get_exp_syncom() (plots.py), the measured SynCom time course of analysis.ipynb, 0-119 h",
+  "method": "hourly Euler projection of each solution's community specific rates with growing biomass and proportional substrate-exhaustion scaling; NRMSE per measured series (normalized by its range), averaged over biomass, acetate, NO3, NO2, N2O; lower is better",
+  "date": "2026-09-09"
+ },
+ "fits": {
+  "1279": {
+   "acetate": 0.5267,
+   "no3": 0.6801,
+   "no2": 0.453,
+   "n2o": 0.815,
+   "biomass": 0.569,
+   "mean": 0.6088
+  },
+  "1350": {
+   "acetate": 0.5207,
+   "no3": 0.6737,
+   "no2": 0.4513,
+   "n2o": 0.7135,
+   "biomass": 0.5579,
+   "mean": 0.5834
+  },
+  "1500": {
+   "acetate": 0.52,
+   "no3": 0.6731,
+   "no2": 0.4512,
+   "n2o": 0.7047,
+   "biomass": 0.5567,
+   "mean": 0.5811
+  },
+  "1600": {
+   "acetate": 0.52,
+   "no3": 0.6731,
+   "no2": 0.4512,
+   "n2o": 0.7047,
+   "biomass": 0.5567,
+   "mean": 0.5811
+  },
+  "2000": {
+   "acetate": 0.52,
+   "no3": 0.6731,
+   "no2": 0.4512,
+   "n2o": 0.7047,
+   "biomass": 0.5567,
+   "mean": 0.5811
+  },
+  "2500": {
+   "acetate": 0.52,
+   "no3": 0.6731,
+   "no2": 0.4512,
+   "n2o": 0.7047,
+   "biomass": 0.5567,
+   "mean": 0.5811
+  }
+ }
+}

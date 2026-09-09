@@ -88,6 +88,11 @@ def nrmse(run, exp):
 
 if __name__ == '__main__':
     exp = CommPlots.get_exp_syncom()
+    # The projection integrates dC/dt = q*X with q in mmol/gDW/h, so X must be gDW/L --
+    # the same conversion fit_acetate_uptake.py applies to derive q. Scoring the raw
+    # OD_coeff series against a gDW/L trajectory makes the biomass NRMSE meaningless.
+    scale = json.load(open('./data/fitted_acetate_uptake.json'))['biomass_scale_factor']
+    exp['biomass'] = [b * scale for b in exp['biomass']]
     runs = json.load(open(SRC))['runs']
     fits = {}
     print(f'{"K":>6} {"NRMSE":>7}   (per series: biomass, acetate, no3, no2, n2o)')
