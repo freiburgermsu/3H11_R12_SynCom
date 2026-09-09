@@ -14,6 +14,10 @@ Baseline (unconstrained) pFBA ratios sum|v|/mu are ~1336 (3H11) and ~1243
 Results: printed summary + data/kinetic_sweep_net_reactions.json (default K
 ladder) or data/kinetic_sweep_net_reactions_<min>-<max>.json (CLI K values).
 
+Member biomass drains are closed (close_member_drains=True) and R12's nosZ is knocked
+out per Carr et al. 2025; the abundance is the measured proteomic mass fraction. See the
+comments at ABUNDANCE and in wrap_community.
+
 With --fitted, the sweep additionally imposes the data-derived constraints:
 the community acetate consumption is FIXED (equality, both bounds) at the
 rate fitted from the measured SynCom time course
@@ -37,13 +41,23 @@ from datetime import date
 warnings.filterwarnings('ignore')
 
 import cobra
+from mscommunity.commkineticpkg import member_kinetic_reactions
 from mscommunity.mscommsim import MSCommunity
 
 from simulate_community import GSP_MEDIUM, MODEL
-from net_cell_reactions import net_exchange, equation_string, FORMATION
+from net_cell_reactions import (assert_biomass_is_retained, net_exchange,
+                                equation_string, FORMATION)
 
 ATPM_MONOCULTURE = {'3H11': 9.6757, 'R12': 23.8012}  # calc_max_ATPM, analysis.ipynb
-ABUNDANCE = {'3H11': 0.4, 'R12': 0.6}
+# Measured steady-state composition, not an assumption: the unique-peptide mass
+# fraction of ../Proteomics/data/SynCom-Nitrate-composition-data.csv at 10 mM nitrate
+# is 65.8 +/- 1.2 % 3H11 (n = 8), and the whole 1-40 mM series spans 62.3-69.8 %.
+# ../Proteomics/data/SynCom-only-composition-data.csv shows the same value reached from
+# inocula spanning 5-98 % 3H11 (mean 63.6 %), and Carr et al. 2025 (ISME J 19:wraf093)
+# report the convergence to "~65% 3H11 and ~35% R12" as a result of the paper.
+# This was 0.4/0.6 -- near enough to inverted -- which is what forced the model to
+# discard 3H11 biomass through the drain to satisfy its kinetic row.
+ABUNDANCE = {'3H11': 0.658, 'R12': 0.342}
 
 args = sys.argv[1:]
 FITTED = '--fitted' in args
@@ -59,26 +73,35 @@ MEMBERS = {'c1': ('3H11', 'bio2'), 'c2': ('R12', 'bio3')}
 EPS = 1e-9
 
 
-def member_reactions(model, comp, bio_id):
-    """Reactions counted in the reported per-member flux sums."""
-    return [r for r in model.reactions
-            if comp in r.compartments and not r.id.startswith(('EX_', 'SK_', 'DM_'))
-            and r.id != bio_id]
+def member_reactions(msc, name):
+    """Reactions counted in the reported per-member flux sums.
+
+    Delegates to the same helper the CommKinetics constraint is built from, so the
+    reported sum|v| and the quantity the constraint bounds cannot drift apart. The
+    local version used to exclude SK_/DM_ reactions that the constraint included.
+    """
+    return list(member_kinetic_reactions(msc, msc.members.get_by_id(name)))
 
 
 def wrap_community(model):
     """Wrap the loaded community model in the MSCommunity package class,
     preserving the model's 40/60 (3H11/R12) biomass coupling."""
     abundances = {
-        '3H11': {'abundance': 0.4,
+        '3H11': {'abundance': ABUNDANCE['3H11'],
                  'biomass_compound': model.metabolites.get_by_id('cpd11416_c1')},
-        'R12': {'abundance': 0.6,
+        'R12': {'abundance': ABUNDANCE['R12'],
                 'biomass_compound': model.metabolites.get_by_id('cpd11416_c2')},
     }
     # construction installs the kinetic rows; start non-binding, each sweep
-    # rung replaces them via add_commkinetics
+    # rung replaces them via add_commkinetics.
+    #
+    # close_member_drains=True is required for this sweep to mean anything: with the
+    # member biomass sinks open, a member can synthesise biomass and discard it, so its
+    # biomass flux exceeds abundance * bio1 and inflates the right-hand side of its own
+    # kinetic row. 83% of 3H11's biomass left through the drain at K = 1285.
     return MSCommunity(model=model, abundances=abundances,
-                       kinetic_coeff=max(K_VALUES + [2000]), ID='SynCom')
+                       kinetic_coeff=max(K_VALUES + [2000]), ID='SynCom',
+                       close_member_drains=True)
 
 
 if __name__ == '__main__':
@@ -109,6 +132,11 @@ if __name__ == '__main__':
               f"nitrate uptake <= {q_no3}, "
               f"ATPM_c1 >= {model.reactions.ATPM_c1.lower_bound:.3f}, "
               f"ATPM_c2 >= {model.reactions.ATPM_c2.lower_bound:.3f} mmol/gDW/h")
+    # Carr et al. 2025 (ISME J 19:wraf093) report R12 as "an incomplete denitrifier with
+    # a non-functional nosZ, requiring a partner", with 3H11 the primary N2O reducer.
+    # Leaving dnr00004_c2 open let R12 carry all of the model's N2 production.
+    model.reactions.dnr00004_c2.bounds = (0, 0)
+
     model.objective = 'bio1'
 
     formation = json.load(open(FORMATION))['compounds']
@@ -133,7 +161,7 @@ if __name__ == '__main__':
         if sol is not None:
             for comp, (name, bio_id) in MEMBERS.items():
                 mu = sol.fluxes[bio_id]
-                sumflux = sum(abs(sol.fluxes[r.id]) for r in member_reactions(model, comp, bio_id))
+                sumflux = sum(abs(sol.fluxes[r.id]) for r in member_reactions(msc, name))
                 atp = model.metabolites.get_by_id(f'cpd00002_{comp}')
                 atp_prod = atp_cons = 0.0
                 for r in atp.reactions:
@@ -148,6 +176,9 @@ if __name__ == '__main__':
                          'atp_production_mmol_gDW_h': round(atp_prod, 4),
                          'atp_consumption_mmol_gDW_h': round(atp_cons, 4)}
                 if mu > EPS:
+                    # every coefficient below is divided by `mu`, so `mu` must be
+                    # biomass that actually reaches the community, not gross synthesis
+                    assert_biomass_is_retained(sol, bio_id, ABUNDANCE[name])
                     net = net_exchange(model, sol, comp)
                     names = {c: model.metabolites.get_by_id(c).name.replace(' [e0]', '') for c in net}
                     names['biomass'] = f'biomass_{name}'

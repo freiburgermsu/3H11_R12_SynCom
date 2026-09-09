@@ -35,6 +35,29 @@ MEMBERS = {'c1': '3H11', 'c2': 'R12'}
 EPS = 1e-9
 
 
+def assert_biomass_is_retained(sol, bio_id, abundance, comm_bio_id='bio1', tol=1e-6):
+    """Fail loudly if a member's biomass flux is not its abundance share of bio1.
+
+    Every per-gDW quantity below divides by `sol.fluxes[bio_id]`, the member's GROSS
+    biomass synthesis rate. That is only "per gDW of biomass formed" when all of it
+    ends up in the community biomass. With the member biomass sinks open the solver
+    can synthesise biomass and discard it: at K = 1285 in the published sweep 82.6% of
+    3H11's biomass went out the drain, so every reported per-gDW coefficient for that
+    row was diluted 5.8-fold (its deltaG read -3.36 rather than -19.4 kcal/gDW).
+
+    Close the drains (MSCommunity(..., close_member_drains=True)) and this holds.
+    """
+    gross = sol.fluxes[bio_id]
+    retained = abundance * sol.fluxes[comm_bio_id]
+    if abs(gross - retained) > tol * max(1.0, abs(gross)):
+        raise AssertionError(
+            f"{bio_id} carries {gross:.6g} but only {retained:.6g} "
+            f"(abundance {abundance:g} x {comm_bio_id} {sol.fluxes[comm_bio_id]:.6g}) reaches "
+            f"the community biomass -- {100 * (1 - retained / gross):.1f}% is being drained. "
+            f"Per-gDW normalization by {bio_id} would be diluted by that factor; close the "
+            f"member biomass drains before reading these numbers.")
+
+
 def net_exchange(model, sol, comp):
     """Net production (+) / consumption (-) of each e0 compound by member comp."""
     totals = {}
