@@ -8,10 +8,13 @@ consumption (equal at steady state, both reported).
 Consecutive rungs that report the same answer are collapsed into a single row
 (kinetic_coeff written as "1500-2500"), since above the coefficient at which the
 kinetic constraint stops binding every further rung reproduces the same optimum
-and adds only length. The collapse is measured, not hard-coded: a rung joins the
-block only if every column matches the block's first row to within COLLAPSE_TOL
-of that column family's largest magnitude anywhere in the sweep, so any rung at
-which something genuinely changes keeps its own row. Whatever does vary inside a
+and adds only length. The collapse is measured, not hard-coded, and a rung keeps
+its own row whenever something genuinely changes: it joins a block only if (a) the
+same members' kinetic rows bind, and (b) every numeric column matches the block's
+first row to within COLLAPSE_TOL of that column family's largest magnitude anywhere
+in the sweep. Test (a) is the physical criterion and it governs -- a rung whose
+kinetic row is still tight is doing different work from one where it is slack, even
+where the two happen to report similar numbers. Whatever does vary inside a
 block is printed and recorded in the row, never silently dropped. Pass
 --no-collapse to write every rung.
 
@@ -58,10 +61,14 @@ def collapse(rows):
         if blocks:
             head, varied = blocks[-1][0], {}
             for col, v in row.items():
-                if col == 'kinetic_coeff' or not isinstance(v, (int, float)):
+                if col == 'kinetic_coeff':
                     continue
                 ref = head.get(col)
-                if not isinstance(ref, (int, float)):
+                if not (isinstance(v, (int, float)) and isinstance(ref, (int, float))):
+                    # non-numeric (the binding signature, or a blank NRMSE) compares exactly
+                    if v != ref:
+                        varied = None
+                        break
                     continue
                 delta = abs(v - ref)
                 if delta > COLLAPSE_TOL * scale[family_of(col)]:
@@ -105,8 +112,14 @@ for run in runs:
     # columns clustered by organism: community (incl. fit) | 3H11 | R12;
     # nitrogen species in pathway order, "in" positive for uptake and "out"
     # positive for secretion (a negative value reverses the direction)
+    # Whether Eq. (commkin) is tight for a member is the physical statement of "this rung
+    # changed something"; two rungs that differ in it are never the same answer, however
+    # closely their reported columns happen to agree.
+    binding = [m for m, v in run['members'].items()
+               if v.get('flux_per_biomass', 0) >= (1 - 1e-6) * run['kinetic_coeff']]
     row = {
         'kinetic_coeff': run['kinetic_coeff'],
+        'kinetic_row_binding': '+'.join(sorted(binding)) or 'none',
         'community_biomass_1_per_h': round(run['community_biomass'], 5) if run['community_biomass'] else 0.0,
         'fit_NRMSE_vs_SynCom_timecourse':
             fits.get(str(run['kinetic_coeff']), {}).get('mean', ''),
