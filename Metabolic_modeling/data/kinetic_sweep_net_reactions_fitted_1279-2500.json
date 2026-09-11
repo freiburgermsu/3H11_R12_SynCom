@@ -4,6 +4,7 @@
   "medium": "GSP community medium (analysis.ipynb)",
   "method": "pFBA max bio1 with community kinetic constraint sum|v_member| <= K * mu_member, installed per rung through mscommunity.mscommsim.MSCommunity.add_commkinetics; net reaction and deltaG computed as in net_cell_reactions.py",
   "kinetic_coefficients": [
+   "off",
    1279,
    1350,
    1400,
@@ -16,8 +17,8 @@
    2500
   ],
   "baseline_unconstrained_flux_per_biomass": {
-   "3H11": 1335.7,
-   "R12": 1243.0
+   "3H11": 1505.3,
+   "R12": 770.9
   },
   "fitted_constraints": {
    "acetate_consumption_fixed_mmol_per_gDW_h": 0.762408,
@@ -33,13 +34,168 @@
    "ATPM_provenance": "calc_max_ATPM monoculture values (analysis.ipynb), scaled by the measured abundances and divided by the OD -> gDW/L biomass scale factor"
   },
   "formation_energies": "./data/compound_formation_energies.json",
-  "date": "2026-09-09"
+  "date": "2026-09-11"
  },
  "runs": [
   {
+   "kinetic_coeff": "off",
+   "status": "optimal",
+   "community_biomass": 0.016582187133617334,
+   "members": {
+    "3H11": {
+     "growth_1_per_h": 0.010911,
+     "sum_flux_mmol_gDW_h": 16.424,
+     "flux_per_biomass": 1505.3,
+     "atp_production_mmol_gDW_h": 2.4525,
+     "atp_consumption_mmol_gDW_h": 2.4525,
+     "net_exchange_mmol_gDW_h": {
+      "H+": -0.347452,
+      "Fumarate": 0.242038,
+      "Nitrite": 1.443287,
+      "Cu2+": -1.7e-05,
+      "H2O": 1.151212,
+      "NH3": -0.087314,
+      "K+": -1.7e-05,
+      "Phosphate": -0.007212,
+      "Thiamin": -1.7e-05,
+      "Sulfate": -0.003405,
+      "Nitrate": -1.443287,
+      "Mg": -1.7e-05,
+      "Fe2+": -7e-05,
+      "Co2+": -1.7e-05,
+      "Zn2+": -1.7e-05,
+      "Pyruvate": -0.137563,
+      "Acetate": -0.764849,
+      "Formate": -9.1e-05,
+      "CO2": 0.586932,
+      "Acetaldehyde": -0.00022,
+      "Sulfite": 0.001153,
+      "5-Methylthio-D-ribose": 1.7e-05,
+      "Ca2+": -1.7e-05,
+      "Mn2+": -1.7e-05,
+      "Cl-": -1.7e-05
+     },
+     "normalized_coefficients_mmol_per_gDW_biomass": {
+      "H+": -31.844,
+      "Fumarate": 22.1828,
+      "Nitrite": 132.2772,
+      "Cu2+": -0.0016,
+      "H2O": 105.5085,
+      "NH3": -8.0023,
+      "K+": -0.0016,
+      "Phosphate": -0.661,
+      "Thiamin": -0.0016,
+      "Sulfate": -0.3121,
+      "Nitrate": -132.2772,
+      "Mg": -0.0016,
+      "Fe2+": -0.0064,
+      "Co2+": -0.0016,
+      "Zn2+": -0.0016,
+      "Pyruvate": -12.6077,
+      "Acetate": -70.0984,
+      "Formate": -0.0083,
+      "CO2": 53.7923,
+      "Acetaldehyde": -0.0201,
+      "Sulfite": 0.1056,
+      "5-Methylthio-D-ribose": 0.0016,
+      "Ca2+": -0.0016,
+      "Mn2+": -0.0016,
+      "Cl-": -0.0016,
+      "biomass_3H11": 1.0
+     },
+     "net_reaction_normalized": "132.3 Nitrate + 70.1 Acetate + 31.84 H+ + 12.61 Pyruvate + 8.002 NH3 + 0.661 Phosphate + 0.3121 Sulfate + 0.02012 Acetaldehyde + 0.008316 Formate + 0.0064 Fe2+ + 0.0016 Cu2+ + 0.0016 Zn2+ + 0.0016 Ca2+ + 0.0016 Mn2+ + 0.0016 Cl- + 0.0016 K+ + 0.0016 Thiamin + 0.0016 Mg + 0.0016 Co2+ --> 132.3 Nitrite + 105.5 H2O + 53.79 CO2 + 22.18 Fumarate + 1 biomass_3H11 + 0.1056 Sulfite + 0.0016 5-Methylthio-D-ribose",
+     "deltaG_kcal_per_gDW_biomass": -4.037,
+     "deltaG_kcal_per_gDW_h": -0.044,
+     "excluded_from_deltaG": [
+      "cpd00058",
+      "cpd00205",
+      "cpd00149",
+      "cpd00034",
+      "cpd00063",
+      "cpd00030",
+      "cpd00099",
+      "biomass"
+     ]
+    },
+    "R12": {
+     "growth_1_per_h": 0.005671,
+     "sum_flux_mmol_gDW_h": 4.372,
+     "flux_per_biomass": 770.9,
+     "atp_production_mmol_gDW_h": 0.5503,
+     "atp_consumption_mmol_gDW_h": 0.5503,
+     "net_exchange_mmol_gDW_h": {
+      "H+": -0.617399,
+      "Fumarate": -0.242038,
+      "Nitrite": -0.312076,
+      "Nitrous oxide": 0.156038,
+      "Cu2+": -9e-06,
+      "H2O": 0.271229,
+      "NH3": -0.045382,
+      "K+": -9e-06,
+      "Phosphate": -0.003748,
+      "Thiamin": -9e-06,
+      "Sulfate": -9e-06,
+      "Mg": -9e-06,
+      "Fe2+": -3.6e-05,
+      "Co2+": -9e-06,
+      "Zn2+": -9e-06,
+      "Pyruvate": 0.137563,
+      "Acetate": 0.002441,
+      "Formate": 9.1e-05,
+      "CO2": 0.348528,
+      "Acetaldehyde": 0.00022,
+      "Sulfite": -0.001153,
+      "Ca2+": -9e-06,
+      "Mn2+": -9e-06,
+      "Cl-": -9e-06
+     },
+     "normalized_coefficients_mmol_per_gDW_biomass": {
+      "H+": -108.8674,
+      "Fumarate": -42.6792,
+      "Nitrite": -55.0291,
+      "Nitrous oxide": 27.5146,
+      "Cu2+": -0.0016,
+      "H2O": 47.8265,
+      "NH3": -8.0023,
+      "K+": -0.0016,
+      "Phosphate": -0.661,
+      "Thiamin": -0.0016,
+      "Sulfate": -0.0016,
+      "Mg": -0.0016,
+      "Fe2+": -0.0064,
+      "Co2+": -0.0016,
+      "Zn2+": -0.0016,
+      "Pyruvate": 24.2568,
+      "Acetate": 0.4304,
+      "Formate": 0.016,
+      "CO2": 61.4568,
+      "Acetaldehyde": 0.0387,
+      "Sulfite": -0.2032,
+      "Ca2+": -0.0016,
+      "Mn2+": -0.0016,
+      "Cl-": -0.0016,
+      "biomass_R12": 1.0
+     },
+     "net_reaction_normalized": "108.9 H+ + 55.03 Nitrite + 42.68 Fumarate + 8.002 NH3 + 0.661 Phosphate + 0.2032 Sulfite + 0.0064 Fe2+ + 0.0016 Mg + 0.0016 Cu2+ + 0.0016 K+ + 0.0016 Thiamin + 0.0016 Sulfate + 0.0016 Co2+ + 0.0016 Zn2+ + 0.0016 Ca2+ + 0.0016 Mn2+ + 0.0016 Cl- --> 61.46 CO2 + 47.83 H2O + 27.51 Nitrous oxide + 24.26 Pyruvate + 1 biomass_R12 + 0.4304 Acetate + 0.03871 Acetaldehyde + 0.016 Formate",
+     "deltaG_kcal_per_gDW_biomass": -3.213,
+     "deltaG_kcal_per_gDW_h": -0.0182,
+     "excluded_from_deltaG": [
+      "cpd00058",
+      "cpd00205",
+      "cpd00149",
+      "cpd00034",
+      "cpd00063",
+      "cpd00030",
+      "cpd00099",
+      "biomass"
+     ]
+    }
+   }
+  },
+  {
    "kinetic_coeff": 1279,
    "status": "optimal",
-   "community_biomass": 0.015560381045546483,
+   "community_biomass": 0.015560381045546445,
    "members": {
     "3H11": {
      "growth_1_per_h": 0.010239,
@@ -102,7 +258,7 @@
       "Cl-": -0.0016,
       "biomass_3H11": 1.0
      },
-     "net_reaction_normalized": "111.2 Nitrate + 57.99 Acetate + 36.59 H+ + 8.002 NH3 + 0.661 Phosphate + 0.2048 H2S + 0.1413 Succinate + 0.02012 Acetaldehyde + 0.008316 Formate + 0.0064 Fe2+ + 0.0016 Thiamin + 0.0016 Cl- + 0.0016 Cu2+ + 0.0016 K+ + 0.0016 Sulfate + 0.0016 Mg + 0.0016 Co2+ + 0.0016 Zn2+ + 0.0016 Ca2+ + 0.0016 Mn2+ --> 111.2 Nitrite + 85.99 H2O + 51.29 CO2 + 7.442 Fumarate + 1 biomass_3H11 + 0.0016 5-Methylthio-D-ribose",
+     "net_reaction_normalized": "111.2 Nitrate + 57.99 Acetate + 36.59 H+ + 8.002 NH3 + 0.661 Phosphate + 0.2048 H2S + 0.1413 Succinate + 0.02012 Acetaldehyde + 0.008316 Formate + 0.0064 Fe2+ + 0.0016 Cl- + 0.0016 Cu2+ + 0.0016 K+ + 0.0016 Thiamin + 0.0016 Sulfate + 0.0016 Mg + 0.0016 Co2+ + 0.0016 Zn2+ + 0.0016 Ca2+ + 0.0016 Mn2+ --> 111.2 Nitrite + 85.99 H2O + 51.29 CO2 + 7.442 Fumarate + 1 biomass_3H11 + 0.0016 5-Methylthio-D-ribose",
      "deltaG_kcal_per_gDW_biomass": -3.408,
      "deltaG_kcal_per_gDW_h": -0.0349,
      "excluded_from_deltaG": [

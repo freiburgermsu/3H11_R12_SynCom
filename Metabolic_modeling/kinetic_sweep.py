@@ -8,8 +8,11 @@ member's net cellular reaction (membrane-crossing fluxes normalized per gDW
 biomass) and its deltaG from the ModelSEED formation energies
 (data/compound_formation_energies.json).
 
-Baseline (unconstrained) pFBA ratios sum|v|/mu are ~1336 (3H11) and ~1243
-(R12), so K spans 100 (strongly limiting) to 2000 (non-binding).
+Pass `off` among the K values to add a comparison rung: the same model with every
+member's kinetic row removed. It runs first, its flux-per-biomass ratios are written
+to the metadata as the unconstrained baseline (they used to be a hard-coded constant
+from before the member drains were closed), and the output name is still taken from
+the numeric ladder alone.
 
 Results: printed summary + data/kinetic_sweep_net_reactions.json (default K
 ladder) or data/kinetic_sweep_net_reactions_<min>-<max>.json (CLI K values).
@@ -30,7 +33,7 @@ since community-model fluxes are expressed per gDW of total community
 biomass. The unscaled monoculture floors sum to 33.5, above the community's
 simultaneous maintenance capacity of 25.7 on this medium, and are infeasible.
 
-Run:  ~/Documents/py_venv/bin/python kinetic_sweep.py [--fitted] [K1 K2 ...]
+Run:  ~/Documents/py_venv/bin/python kinetic_sweep.py [--fitted] [off] [K1 K2 ...]
 """
 import json
 import re
@@ -62,6 +65,10 @@ ABUNDANCE = {'3H11': 0.658, 'R12': 0.342}
 args = sys.argv[1:]
 FITTED = '--fitted' in args
 args = [a for a in args if a != '--fitted']
+# taken out before K_VALUES is built: wrap_community sizes the initial rows from the
+# numeric ladder, and the output name must not move when the comparison rung is added
+KINETICS_OFF = 'off' in args
+args = [a for a in args if a != 'off']
 tag = '_fitted' if FITTED else ''
 if args:
     K_VALUES = [int(x) for x in args]
@@ -69,6 +76,7 @@ if args:
 else:
     K_VALUES = [100, 150, 250, 400, 600, 800, 1000, 1200, 1500, 2000]
     OUT = f'./data/kinetic_sweep_net_reactions{tag}.json'
+LADDER = (['off'] if KINETICS_OFF else []) + K_VALUES
 MEMBERS = {'c1': ('3H11', 'bio2'), 'c2': ('R12', 'bio3')}
 EPS = 1e-9
 
@@ -158,8 +166,14 @@ if __name__ == '__main__':
     runs = []
     print(f'{"K":>6} {"bio1":>9} {"mu_3H11":>9} {"mu_R12":>9} '
           f'{"dG_3H11":>9} {"dG_R12":>9}  (dG in kcal/gDW biomass)')
-    for k in K_VALUES:
-        msc.add_commkinetics(k)  # replaces each member's _commKin row
+    for k in LADDER:
+        if k == 'off':
+            for member in msc.members:
+                cons_id = f'{member.id}_commKin'
+                if cons_id in model.constraints:
+                    model.remove_cons_vars(model.constraints[cons_id])
+        else:
+            msc.add_commkinetics(k)  # replaces each member's _commKin row
         try:
             sol = cobra.flux_analysis.pfba(model)
             status = sol.status
@@ -233,8 +247,10 @@ if __name__ == '__main__':
                       'sum|v_member| <= K * mu_member, installed per rung through '
                       'mscommunity.mscommsim.MSCommunity.add_commkinetics; net reaction '
                       'and deltaG computed as in net_cell_reactions.py',
-            'kinetic_coefficients': K_VALUES,
-            'baseline_unconstrained_flux_per_biomass': {'3H11': 1335.7, 'R12': 1243.0},
+            'kinetic_coefficients': LADDER,
+            'baseline_unconstrained_flux_per_biomass': next(
+                ({m: e['flux_per_biomass'] for m, e in r['members'].items()}
+                 for r in runs if r['kinetic_coeff'] == 'off'), None),
             'fitted_constraints': ({'acetate_consumption_fixed_mmol_per_gDW_h': fitted_info['q_acetate_mmol_per_gDW_h'],
                                     'acetate_fit_r_squared': fitted_info['acetate_r_squared'],
                                     'nitrate_uptake_cap_mmol_per_gDW_h': fitted_info['q_nitrate_mmol_per_gDW_h'],
